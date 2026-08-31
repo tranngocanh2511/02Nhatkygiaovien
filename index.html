@@ -14,6 +14,9 @@
     <!-- Cài đặt Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- Thư viện xuất PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -55,7 +58,7 @@
         
         body { font-family: 'Nunito', sans-serif; }
         
-        /* Logic Chuyển Tab Mới (Tránh lỗi chặn click trên mobile) */
+        /* Logic Chuyển Tab: Tránh lỗi chặn click trên mobile (Safari) */
         .tab-content { 
             position: absolute;
             inset: 0;
@@ -131,16 +134,20 @@
             </button>
         </nav>
         
-        <div class="p-4 m-4 bg-dino-egg/20 rounded-3xl border-2 border-dino-egg/50 shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-white border-2 border-dino-earth flex items-center justify-center text-dino-earth text-xl overflow-hidden">
+        <div class="p-4 m-4 bg-dino-egg/20 rounded-3xl border-2 border-dino-egg/50 shrink-0 flex justify-between items-center gap-2">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-10 h-10 shrink-0 rounded-full bg-white border-2 border-dino-earth flex items-center justify-center text-dino-earth overflow-hidden">
                     <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Teacher&backgroundColor=badc58" alt="Avatar" class="w-full h-full object-cover">
                 </div>
-                <div>
-                    <p class="text-base font-black text-slate-800">Giáo Viên</p>
-                    <p class="text-sm font-bold text-dino-earth">Năm học 2026</p>
+                <div class="truncate">
+                    <p class="text-base font-black text-slate-800 truncate">Giáo Viên</p>
+                    <p class="text-xs font-bold text-dino-earth truncate">Năm học 2026</p>
                 </div>
             </div>
+            <!-- Nút xuất file Word đã được thu gọn thành hình tròn -->
+            <button onclick="exportToWord()" title="Xuất sổ tay Word" class="w-10 h-10 shrink-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-dino transition-transform active:scale-95 border-b-4 border-blue-700">
+                <i class="ph-fill ph-file-doc text-xl"></i>
+            </button>
         </div>
     </aside>
 
@@ -148,13 +155,16 @@
     <main class="flex-1 flex flex-col h-screen relative bg-dino-bg egg-pattern-light">
         
         <!-- Mobile Header -->
-        <header class="md:hidden bg-white border-b-4 border-dino-lime/30 p-4 flex justify-center items-center z-20 shrink-0">
+        <header class="md:hidden bg-white border-b-4 border-dino-lime/30 p-4 flex justify-between items-center z-20 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-dino-dark rounded-full flex items-center justify-center text-white text-lg font-black">
                     <i class="ph-fill ph-paw-print"></i>
                 </div>
                 <h1 class="font-black text-xl text-dino-dark tracking-tight">DinoSpace</h1>
             </div>
+            <button onclick="exportToWord()" title="Xuất sổ tay Word" class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-dino active:scale-95 transition-transform border-b-4 border-blue-700">
+                <i class="ph-fill ph-file-doc text-xl"></i>
+            </button>
         </header>
 
         <!-- Dynamic Content Area -->
@@ -425,9 +435,13 @@
         <span id="toast-message">Tuyệt vời!</span>
     </div>
 
+    <!-- Vùng ẩn để chứa HTML khi xuất PDF -->
+    <div id="print-area" class="hidden"></div>
+
     <script>
         // =========================================================================
         // URL CỦA GOOGLE APPS SCRIPT WEB APP
+        // Thay thế chuỗi bên dưới bằng link Web App của bạn
         // =========================================================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwD0kTwFxGCs9nVQARm0dUKZ2nh4Fcv_vfhRotbsRD_eThIrzLayXpMQVRbvXZvIrQ5/exec';
 
@@ -439,7 +453,7 @@
         let currentImageBase64 = ""; 
         let currentEditId = null; 
 
-        // --- Dữ liệu Mẫu (Để dự phòng đẩy lên trang tính rỗng) ---
+        // --- Dữ liệu Mẫu (Tự động đẩy lên trang tính nếu trống) ---
         let defaultTasks = [
             { id: generateId(), title: 'Chuẩn bị phòng học, dọn vệ sinh', type: 'Khác', deadline: '2026-08-15', status: 'done', note: 'Kiểm tra bàn ghế, dụng cụ vệ sinh, chụp hình chỗ hư hỏng.', createdAt: new Date().toISOString() },
             { id: generateId(), title: 'Lập group Zalo & Cập nhật CSDL', type: 'Sổ sách', deadline: '2026-08-25', status: 'doing', note: 'Nhắn phụ huynh mua đồ dùng, dán tên. Cập nhật chiều cao, cân nặng.', createdAt: new Date().toISOString() },
@@ -494,6 +508,123 @@
         function triggerStompShake() {
             document.body.classList.add('stomp-active');
             setTimeout(() => document.body.classList.remove('stomp-active'), 400);
+        }
+
+        // --- HÀM XUẤT WORD TOÀN BỘ SỔ TAY ---
+        function exportToWord() {
+            showToast("Đang tạo file Word. Vui lòng đợi...");
+            
+            // Xây dựng bố cục HTML cơ bản tương thích với MS Word
+            let htmlContent = `
+                <div style="font-family: 'Times New Roman', serif; color: #000;">
+                    <!-- TRANG BÌA -->
+                    <div style="text-align: center; margin-bottom: 50px;">
+                        <h1 style="font-size: 24pt; color: #2e7d32; margin-bottom: 10px;">SỔ TAY GIÁO VIÊN ĐIỆN TỬ</h1>
+                        <p style="font-size: 14pt; color: #555; margin-bottom: 20px;">Năm học 2026 - 2027</p>
+                        <hr style="border: 1px solid #4caf50; width: 30%; margin: 0 auto; margin-bottom: 30px;">
+                        <p style="font-size: 10pt; font-style: italic; color: #888;">Xuất bản từ hệ thống DinoSpace</p>
+                    </div>
+
+                    <!-- PHẦN 1: TỔNG QUAN -->
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 18pt; color: #d84315; border-bottom: 2px solid #ffccbc; padding-bottom: 5px;">1. TỔNG QUAN LỘ TRÌNH NĂM HỌC</h2>
+                        <div>
+                            ${overviews.map(o => `
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="font-size: 14pt; background-color: #ffe0b2; padding: 5px 10px; display: inline-block;">${o.month} - ${o.title}</h3>
+                                    <ul style="margin-top: 10px;">
+                                        ${o.items.map(i => `<li style="font-size: 12pt; margin-bottom: 5px;">${i}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: CÔNG VIỆC -->
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 18pt; color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 5px;">2. SỔ SÁCH & CÔNG VIỆC</h2>
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 12pt;">
+                            <thead>
+                                <tr style="background-color: #f5f5f5;">
+                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Phân loại</th>
+                                    <th style="border: 1px solid #ccc; padding: 8px; width: 40%; text-align: left;">Tên công việc</th>
+                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Hạn nộp</th>
+                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tasks.map(t => `
+                                    <tr>
+                                        <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold;">${t.type}</td>
+                                        <td style="border: 1px solid #ccc; padding: 8px;">${t.title}</td>
+                                        <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(t.deadline)}</td>
+                                        <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; color: ${t.status === 'done' ? '#2e7d32' : '#ed6c02'};">
+                                            ${t.status === 'done' ? 'Hoàn thành' : (t.status === 'doing' ? 'Đang xử lý' : 'Cần làm')}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PHẦN 3: NHẬT KÝ -->
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 18pt; color: #424242; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px;">3. NHẬT KÝ HÀNH TRÌNH</h2>
+                        <div>
+                            ${journals.map(j => `
+                                <div style="margin-bottom: 30px; padding: 15px; border: 1px solid #eee; background-color: #fafafa;">
+                                    <div style="margin-bottom: 10px;">
+                                        <span style="font-size: 12pt; font-weight: bold; color: #d84315;">${formatDate(j.date)}</span>
+                                        <span style="font-size: 10pt; background-color: #e0e0e0; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">${j.tag}</span>
+                                    </div>
+                                    <h3 style="font-size: 16pt; color: #212121; margin-bottom: 10px;">${j.title}</h3>
+                                    <p style="white-space: pre-line; font-size: 12pt; line-height: 1.5; color: #424242; margin-bottom: 15px;">${j.content}</p>
+                                    ${j.image ? `<img src="${j.image}" style="max-height: 300px; max-width: 100%; border: 1px solid #ccc;" />` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 4: CẨM NANG -->
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 18pt; color: #1565c0; border-bottom: 2px solid #bbdefb; padding-bottom: 5px;">4. CẨM NANG KINH NGHIỆM</h2>
+                        <div>
+                            ${handbooks.map(h => `
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="font-size: 14pt; color: #0d47a1; margin-bottom: 10px;">• ${h.title}</h3>
+                                    <p style="font-size: 12pt; color: #424242; white-space: pre-line; padding-left: 15px; border-left: 2px solid #bbdefb;">${h.content}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Cấu trúc thẻ HTML đặc tả cho MS Word
+            var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Sổ Tay Giáo Viên</title></head><body>";
+            var postHtml = "</body></html>";
+            var html = preHtml + htmlContent + postHtml;
+
+            // Chuyển đổi thành dạng Blob tương thích với đuôi .doc
+            var blob = new Blob(['\ufeff', html], {
+                type: 'application/msword'
+            });
+            
+            var filename = 'So_Tay_Giao_Vien_DinoSpace.doc';
+            var downloadLink = document.createElement("a");
+
+            document.body.appendChild(downloadLink);
+            if (navigator.msSaveOrOpenBlob) {
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                var url = URL.createObjectURL(blob);
+                downloadLink.href = url;
+                downloadLink.download = filename;
+                downloadLink.click();
+                URL.revokeObjectURL(url); // Giải phóng bộ nhớ sau khi tải
+            }
+            document.body.removeChild(downloadLink);
+            showToast("Đã tải xong file Word!");
         }
 
         // --- Hàm gọi API Google Apps Script ---
@@ -783,7 +914,7 @@
 
             const journalData = { id: currentEditId ? currentEditId : generateId(), title: document.getElementById('journal-title').value, date: document.getElementById('journal-date').value, content: document.getElementById('journal-content').value, tag: document.getElementById('journal-tag').value, imageBase64: currentImageBase64, createdAt: new Date().toISOString() };
             
-            // Giữ lại link ảnh cũ nếu đang sửa mà không tải ảnh mới lên
+            // Giữ lại link ảnh cũ nếu đang sửa mà không tải mới
             if (currentEditId) {
                 const oldJournal = journals.find(j => j.id === currentEditId);
                 if (oldJournal && oldJournal.image) journalData.image = oldJournal.image;
@@ -871,7 +1002,7 @@
             e.preventDefault();
             const btnSubmit = e.target.querySelector('button[type="submit"]'); btnSubmit.innerHTML = 'Đang lưu...'; btnSubmit.disabled = true;
 
-            const icons = ['ph-chalkboard-teacher', 'ph-bowl-food', 'ph-book-open-text', 'ph-math-operations', 'ph-bus', 'ph-star', 'ph-lightbulb'];
+            const icons = ['ph-chalk-board-teacher', 'ph-bowl-food', 'ph-book-open-text', 'ph-math-operations', 'ph-bus', 'ph-star', 'ph-lightbulb'];
             const colors = ['bg-dino-earth text-white', 'bg-dino-dark text-white', 'bg-dino-lime text-dino-dark', 'bg-slate-700 text-white', 'bg-orange-500 text-white'];
             const contentFormatted = document.getElementById('handbook-content').value.replace(/\n/g, '<br>');
 
@@ -890,25 +1021,25 @@
 
             // 1. Load Tasks
             const resTasks = await fetchGAS('getTasks');
-            if (resTasks.status === 'success' && resTasks.data.length > 0) { tasks = resTasks.data; } 
+            if (resTasks && resTasks.status === 'success' && resTasks.data.length > 0) { tasks = resTasks.data; } 
             else { tasks = [...defaultTasks]; if (isOnline) tasks.forEach(t => fetchGAS('addTask', t)); }
             if(document.getElementById('tab-tasks').classList.contains('active')) renderTasks();
 
             // 2. Load Journals
             const resJournals = await fetchGAS('getJournals');
-            if (resJournals.status === 'success' && resJournals.data.length > 0) { journals = resJournals.data; } 
+            if (resJournals && resJournals.status === 'success' && resJournals.data.length > 0) { journals = resJournals.data; } 
             else { journals = [...defaultJournals]; if (isOnline) journals.forEach(j => fetchGAS('addJournal', j)); }
             if(document.getElementById('tab-journal').classList.contains('active')) renderJournals();
 
             // 3. Load Overview
             const resOverviews = await fetchGAS('getOverview');
-            if (resOverviews.status === 'success' && resOverviews.data.length > 0) { overviews = resOverviews.data; } 
+            if (resOverviews && resOverviews.status === 'success' && resOverviews.data.length > 0) { overviews = resOverviews.data; } 
             else { overviews = [...defaultOverviews]; if (isOnline) overviews.forEach(o => fetchGAS('addOverview', o)); }
             if(document.getElementById('tab-overview').classList.contains('active')) renderOverview();
 
             // 4. Load Handbooks (Có kiểm tra bổ sung)
             const resHandbooks = await fetchGAS('getHandbooks');
-            if (resHandbooks.status === 'success') {
+            if (resHandbooks && resHandbooks.status === 'success') {
                 if (resHandbooks.data.length > 0) {
                     const existingTitles = resHandbooks.data.map(h => h.title);
                     const missingHandbooks = defaultHandbooks.filter(h => !existingTitles.includes(h.title));
