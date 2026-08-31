@@ -821,7 +821,22 @@
         function renderOverview() {
             const container = document.getElementById('overview-timeline'); if(!container) return; container.innerHTML = '';
             overviews.forEach(plan => {
-                const listItems = plan.items.map(item => `<li class="flex items-start gap-2"><i class="ph-bold ph-check text-dino-dark mt-1"></i> <span>${item}</span></li>`).join('');
+                const listItems = plan.items.map(item => {
+                    let formattedItem = item;
+                    if (formattedItem.trim().startsWith('**') && !formattedItem.trim().endsWith('**')) {
+                         formattedItem = formattedItem.replace(/^\*\*\s*/, '');
+                         formattedItem = `<strong class="font-black text-slate-900">${formattedItem}</strong>`;
+                    } else {
+                         formattedItem = formattedItem.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-slate-900">$1</strong>');
+                    }
+                    const cleanText = item.replace(/\*/g, '').trim();
+                    const hasOwnBullet = /^([-+]|\d+\.|[a-zA-Z]\.)/.test(cleanText);
+                    if (hasOwnBullet) {
+                        return `<li class="ml-2">${formattedItem}</li>`;
+                    } else {
+                        return `<li class="flex items-start gap-2"><span class="text-slate-400 font-bold mt-0.5">•</span> <span>${formattedItem}</span></li>`;
+                    }
+                }).join('');
                 container.innerHTML += `
                 <div class="relative group">
                     <div class="absolute -left-[45px] top-4 w-10 h-10 rounded-full bg-white border-4 border-dino-egg flex items-center justify-center z-10 shadow-sm transition-transform group-hover:scale-110"><i class="ph-fill ${plan.icon} ${plan.color.replace('bg-', 'text-')} text-xl"></i></div>
