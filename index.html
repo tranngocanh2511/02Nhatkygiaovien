@@ -880,7 +880,17 @@
 
         function renderJournals() {
             const container = document.getElementById('journal-timeline'); if(!container) return; container.innerHTML = '';
-            const sortedJournals = [...journals].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Sắp xếp theo dòng thời gian (Mới nhất ở trên cùng). 
+            // Nếu trùng ngày thì bài nào viết sau sẽ ưu tiên xếp lên trên.
+            const sortedJournals = [...journals].sort((a, b) => {
+                const timeA = new Date(a.date).getTime();
+                const timeB = new Date(b.date).getTime();
+                if (timeB === timeA) {
+                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+                }
+                return timeB - timeA;
+            });
 
             sortedJournals.forEach(entry => {
                 const style = getTagStyle(entry.tag); const hasImage = entry.image && entry.image.trim() !== '';
