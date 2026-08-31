@@ -782,6 +782,13 @@
             btnSubmit.disabled = true;
 
             const journalData = { id: currentEditId ? currentEditId : generateId(), title: document.getElementById('journal-title').value, date: document.getElementById('journal-date').value, content: document.getElementById('journal-content').value, tag: document.getElementById('journal-tag').value, imageBase64: currentImageBase64, createdAt: new Date().toISOString() };
+            
+            // Giữ lại link ảnh cũ nếu đang sửa mà không tải ảnh mới lên
+            if (currentEditId) {
+                const oldJournal = journals.find(j => j.id === currentEditId);
+                if (oldJournal && oldJournal.image) journalData.image = oldJournal.image;
+            }
+
             const response = await fetchGAS(currentEditId ? 'updateJournalFull' : 'addJournal', journalData);
             
             if (currentEditId) {
