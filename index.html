@@ -677,15 +677,15 @@
 
             return `
                 <div class="bg-white p-5 rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-md transition-shadow group relative">
-                    <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        <button onclick="openEditModal('task', '${task.id}')" class="p-1.5 bg-slate-50 text-slate-400 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
+                    <div class="absolute top-3 right-3 flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                        <button onclick="openEditModal('task', '${task.id}')" class="p-2 md:p-1.5 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
                             <i class="ph-fill ph-pencil-simple text-lg"></i>
                         </button>
-                        <button onclick="deleteTask('${task.id}')" class="p-1.5 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                        <button onclick="deleteTask('${task.id}')" class="p-2 md:p-1.5 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
                             <i class="ph-fill ph-trash text-lg"></i>
                         </button>
                     </div>
-                    <div class="flex justify-between items-start mb-3">
+                    <div class="flex justify-between items-start mb-3 pr-16">
                         <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${getTaskTypeStyle(task.type)}">${task.type}</span>
                     </div>
                     <h4 class="font-black text-slate-800 text-lg leading-tight mb-2">${task.title}</h4>
@@ -793,16 +793,16 @@
                     </div>
                     
                     <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:shadow-md transition-all relative">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <button onclick="openEditModal('journal', '${entry.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                            <button onclick="openEditModal('journal', '${entry.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
                                 <i class="ph-fill ph-pencil-simple text-xl"></i>
                             </button>
-                            <button onclick="deleteJournal('${entry.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                            <button onclick="deleteJournal('${entry.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
                                 <i class="ph-fill ph-trash text-xl"></i>
                             </button>
                         </div>
 
-                        <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center gap-3 mb-4 pr-16">
                             <span class="font-black text-dino-earth bg-dino-egg/20 px-3 py-1 rounded-full text-sm">${formatDate(entry.date)}</span>
                             <span class="px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 ${style.bg}">
                                 <i class="ph-fill ${style.icon}"></i> ${entry.tag}
@@ -891,11 +891,11 @@
             handbooks.forEach(item => {
                 container.innerHTML += `
                     <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:shadow-dino hover:border-dino-lime transition-all group relative">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <button onclick="openEditModal('handbook', '${item.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                            <button onclick="openEditModal('handbook', '${item.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
                                 <i class="ph-fill ph-pencil-simple text-xl"></i>
                             </button>
-                            <button onclick="deleteHandbook('${item.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                            <button onclick="deleteHandbook('${item.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
                                 <i class="ph-fill ph-trash text-xl"></i>
                             </button>
                         </div>
@@ -964,15 +964,15 @@
                         <i class="ph-fill ${plan.icon} ${plan.color.replace('bg-', 'text-')} text-xl"></i>
                     </div>
                     <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:border-dino-earth/50 hover:shadow-md transition-all relative ml-2">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <button onclick="openEditModal('overview', '${plan.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                            <button onclick="openEditModal('overview', '${plan.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors">
                                 <i class="ph-fill ph-pencil-simple text-xl"></i>
                             </button>
-                            <button onclick="deleteOverview('${plan.id}')" class="p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                            <button onclick="deleteOverview('${plan.id}')" class="p-2 bg-slate-100 md:bg-slate-50 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors">
                                 <i class="ph-fill ph-trash text-xl"></i>
                             </button>
                         </div>
-                        <div class="flex items-center gap-3 mb-4 pr-20">
+                        <div class="flex items-center gap-3 mb-4 pr-16">
                             <span class="font-black text-white ${plan.color} px-4 py-1.5 rounded-full text-sm shadow-sm whitespace-nowrap">${plan.month}</span>
                             <h3 class="text-xl md:text-2xl font-black text-slate-800">${plan.title}</h3>
                         </div>
