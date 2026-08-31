@@ -5,84 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Dino EduSpace - Sổ Tay Giáo Viên</title>
     
-    <!-- Cài đặt Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Cài đặt Font chữ Nunito -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Cài đặt Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- Thư viện xuất PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Nunito', 'sans-serif'], },
                     colors: {
-                        dino: {
-                            dark: '#6ab04c',  
-                            lime: '#badc58',  
-                            earth: '#f0932b', 
-                            egg: '#ffbe76',   
-                            bg: '#fcfaf5',    
-                        }
+                        dino: { dark: '#6ab04c', lime: '#badc58', earth: '#f0932b', egg: '#ffbe76', bg: '#fcfaf5', }
                     },
-                    borderRadius: {
-                        '4xl': '2rem',
-                        '5xl': '2.5rem',
-                    },
+                    borderRadius: { '4xl': '2rem', '5xl': '2.5rem', },
                     boxShadow: {
                         'dino': '0 8px 24px rgba(106, 176, 76, 0.15)',
                         'dino-solid': '4px 4px 0px rgba(106, 176, 76, 0.2)',
                         'nav': '0 -4px 20px rgba(0, 0, 0, 0.05)',
                     },
-                    spacing: {
-                        'safe-bottom': 'env(safe-area-inset-bottom)',
-                    }
+                    spacing: { 'safe-bottom': 'env(safe-area-inset-bottom)', }
                 }
             }
         }
     </script>
+    
     <style>
-        /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #badc58; border-radius: 20px; }
         ::-webkit-scrollbar-thumb:hover { background: #6ab04c; }
-        
         body { font-family: 'Nunito', sans-serif; }
-        
-        /* Logic Chuyển Tab: Tránh lỗi chặn click trên mobile (Safari) */
-        .tab-content { 
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 0;
-            transition: opacity 0.3s ease;
-        }
-        .tab-content.active { 
-            opacity: 1;
-            pointer-events: auto;
-            z-index: 10;
-        }
-
-        .egg-pattern {
-            background-color: #ffbe76;
-            background-image: radial-gradient(#f0932b 15%, transparent 16%), radial-gradient(#f0932b 15%, transparent 16%);
-            background-size: 30px 30px; background-position: 0 0, 15px 15px;
-        }
-        .egg-pattern-light {
-            background-image: radial-gradient(rgba(240, 147, 43, 0.15) 15%, transparent 16%), radial-gradient(rgba(240, 147, 43, 0.15) 15%, transparent 16%);
-            background-size: 30px 30px; background-position: 0 0, 15px 15px;
-        }
-
+        .tab-content { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { opacity: 1; pointer-events: auto; z-index: 10; overflow-y: auto; }
+        .egg-pattern { background-color: #ffbe76; background-image: radial-gradient(#f0932b 15%, transparent 16%), radial-gradient(#f0932b 15%, transparent 16%); background-size: 30px 30px; background-position: 0 0, 15px 15px; }
+        .egg-pattern-light { background-image: radial-gradient(rgba(240, 147, 43, 0.15) 15%, transparent 16%), radial-gradient(rgba(240, 147, 43, 0.15) 15%, transparent 16%); background-size: 30px 30px; background-position: 0 0, 15px 15px; }
         @keyframes stompShake {
             0% { transform: translate(0, 0) rotate(0deg); }
             15% { transform: translate(-4px, 6px) rotate(-1deg); }
@@ -94,17 +51,16 @@
         }
         .stomp-active { animation: stompShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         input:focus, select:focus, textarea:focus, button:focus { outline: none; }
-        
-        /* Hiển thị luôn nút sửa/xóa trên mobile */
-        @media (max-width: 768px) {
-            .mobile-always-show { opacity: 1 !important; }
-        }
+        @media (max-width: 768px) { .mobile-always-show { opacity: 1 !important; } }
     </style>
 </head>
 
-<body class="bg-dino-bg text-slate-800 h-screen flex overflow-hidden">
+<body class="bg-dino-bg text-slate-800 h-screen flex overflow-hidden relative">
 
-    <!-- Sidebar Desktop -->
+    <div id="connection-status" class="fixed top-4 right-4 z-[100] px-4 py-2 rounded-full font-bold text-sm shadow-md transition-colors bg-white text-slate-500 border-2 border-slate-200 flex items-center gap-2">
+        <i class="ph-bold ph-spinner animate-spin"></i> Đang kết nối...
+    </div>
+
     <aside class="w-72 bg-white border-r-4 border-dino-lime/30 flex-col hidden md:flex relative z-20 h-screen">
         <div class="h-32 egg-pattern rounded-br-4xl relative shadow-sm shrink-0">
             <div class="absolute -bottom-6 left-6 flex items-end gap-3">
@@ -134,7 +90,7 @@
             </button>
         </nav>
         
-        <div class="p-4 m-4 bg-dino-egg/20 rounded-3xl border-2 border-dino-egg/50 shrink-0 flex justify-between items-center gap-2">
+        <div class="p-4 m-4 bg-dino-egg/20 rounded-3xl border-2 border-dino-egg/50 shrink-0 flex justify-between items-center gap-2 relative group">
             <div class="flex items-center gap-3 overflow-hidden">
                 <div class="w-10 h-10 shrink-0 rounded-full bg-white border-2 border-dino-earth flex items-center justify-center text-dino-earth overflow-hidden">
                     <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Teacher&backgroundColor=badc58" alt="Avatar" class="w-full h-full object-cover">
@@ -144,17 +100,16 @@
                     <p class="text-xs font-bold text-dino-earth truncate">Năm học 2026</p>
                 </div>
             </div>
-            <!-- Nút xuất file Word đã được thu gọn thành hình tròn -->
-            <button onclick="exportToWord()" title="Xuất sổ tay Word" class="w-10 h-10 shrink-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-dino transition-transform active:scale-95 border-b-4 border-blue-700">
-                <i class="ph-fill ph-file-doc text-xl"></i>
+            <!-- Nút xuất PDF -->
+            <button onclick="exportToPDF()" title="Xuất sổ tay PDF" class="w-10 h-10 shrink-0 bg-dino-earth hover:bg-orange-500 text-white rounded-full flex items-center justify-center shadow-sm transition-transform active:scale-95 border-b-4 border-orange-600">
+                <i class="ph-fill ph-file-pdf text-xl"></i>
             </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen relative bg-dino-bg egg-pattern-light">
+    <main class="flex-1 flex flex-col h-screen relative bg-dino-bg egg-pattern-light pb-[70px] md:pb-0">
         
-        <!-- Mobile Header -->
+        <!-- Header Mobile & Nút xuất PDF (Mobile) -->
         <header class="md:hidden bg-white border-b-4 border-dino-lime/30 p-4 flex justify-between items-center z-20 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-dino-dark rounded-full flex items-center justify-center text-white text-lg font-black">
@@ -162,15 +117,15 @@
                 </div>
                 <h1 class="font-black text-xl text-dino-dark tracking-tight">DinoSpace</h1>
             </div>
-            <button onclick="exportToWord()" title="Xuất sổ tay Word" class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-dino active:scale-95 transition-transform border-b-4 border-blue-700">
-                <i class="ph-fill ph-file-doc text-xl"></i>
+            <button onclick="exportToPDF()" title="Xuất sổ tay PDF" class="w-10 h-10 bg-dino-earth text-white rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-transform border-b-4 border-orange-600 mt-6 mr-14">
+                <i class="ph-fill ph-file-pdf text-xl"></i>
             </button>
         </header>
 
         <!-- Dynamic Content Area -->
-        <div class="flex-1 relative overflow-hidden">
-            <!-- TAB TỔNG QUAN -->
-            <div id="tab-overview" class="tab-content active p-4 md:p-8 overflow-y-auto pb-24 md:pb-8 h-full">
+        <div class="flex-1 relative">
+            
+            <div id="tab-overview" class="tab-content active p-4 md:p-8">
                 <div class="max-w-4xl mx-auto h-full">
                     <div class="flex justify-between items-center mb-8 sticky top-0 bg-dino-bg/90 backdrop-blur-md pt-2 pb-4 z-10 border-b-4 border-dino-lime/30">
                         <div>
@@ -185,9 +140,8 @@
                 </div>
             </div>
 
-            <!-- TAB CÔNG VIỆC -->
-            <div id="tab-tasks" class="tab-content p-4 md:p-8 h-full flex flex-col">
-                <div class="flex justify-between items-center mb-6 shrink-0">
+            <div id="tab-tasks" class="tab-content p-4 md:p-8 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-4 shrink-0">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-black text-dino-dark">Sổ Sách & Công Việc</h2>
                         <p class="text-dino-earth font-bold mt-1 text-sm md:text-base">Quản lý hồ sơ, giáo án</p>
@@ -197,7 +151,18 @@
                     </button>
                 </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 pb-24 md:pb-0 overflow-y-auto lg:overflow-hidden">
+                <!-- Radar Cảnh báo Quá tải -->
+                <div id="workload-warning" class="hidden mb-4 bg-orange-100 border-4 border-orange-400 p-4 rounded-3xl flex items-center gap-4 shrink-0 shadow-sm animate-pulse">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-2xl shrink-0"><i class="ph-bold ph-warning"></i></div>
+                    <div>
+                        <h4 class="font-black text-orange-800 text-lg">Cảnh báo Quá Tải!</h4>
+                        <p class="text-orange-700 font-bold" id="workload-text">Tuần này bạn có quá nhiều việc đến hạn. Hãy chú ý sức khỏe nhé!</p>
+                    </div>
+                </div>
+                
+                <!-- Kanban Board -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 pb-12 lg:pb-0 lg:overflow-hidden">
+                    <!-- Column Mới Nở -->
                     <div class="bg-white/80 rounded-4xl p-5 border-4 border-dino-egg flex flex-col shadow-sm h-full min-h-[400px]">
                         <div class="flex items-center justify-between mb-4 shrink-0 px-2">
                             <h3 class="font-black text-dino-earth text-lg flex items-center gap-2"><i class="ph-fill ph-egg text-2xl"></i> Mới Nở</h3>
@@ -206,6 +171,7 @@
                         <div id="list-todo" class="space-y-4 flex-1 overflow-y-auto p-1 pr-2"></div>
                     </div>
 
+                    <!-- Column Đang Chạy -->
                     <div class="bg-white/80 rounded-4xl p-5 border-4 border-dino-lime flex flex-col shadow-sm h-full min-h-[400px]">
                         <div class="flex items-center justify-between mb-4 shrink-0 px-2">
                             <h3 class="font-black text-dino-dark text-lg flex items-center gap-2"><i class="ph-fill ph-dinosaur text-2xl text-dino-lime"></i> Đang Chạy</h3>
@@ -214,6 +180,7 @@
                         <div id="list-doing" class="space-y-4 flex-1 overflow-y-auto p-1 pr-2"></div>
                     </div>
                     
+                    <!-- Column Về Đích -->
                     <div class="bg-dino-dark/5 rounded-4xl p-5 border-4 border-dino-dark/30 flex flex-col shadow-sm h-full min-h-[400px]">
                         <div class="flex items-center justify-between mb-4 shrink-0 px-2">
                             <h3 class="font-black text-dino-dark text-lg flex items-center gap-2"><i class="ph-fill ph-medal text-2xl"></i> Về Đích</h3>
@@ -224,8 +191,7 @@
                 </div>
             </div>
 
-            <!-- TAB NHẬT KÝ -->
-            <div id="tab-journal" class="tab-content p-4 md:p-8 overflow-y-auto pb-24 md:pb-8 h-full">
+            <div id="tab-journal" class="tab-content p-4 md:p-8">
                 <div class="max-w-4xl mx-auto h-full">
                     <div class="flex justify-between items-center mb-8 sticky top-0 bg-dino-bg/90 backdrop-blur-md pt-2 pb-4 z-10 border-b-4 border-dino-lime/30">
                         <div>
@@ -236,56 +202,72 @@
                             <i class="ph-fill ph-pencil-simple text-xl"></i> <span class="hidden md:inline">Viết</span>
                         </button>
                     </div>
-                    <div class="relative pl-6 md:pl-10 border-l-4 border-dino-lime/50 space-y-10" id="journal-timeline"></div>
+                    <div class="relative pl-6 md:pl-10 border-l-4 border-dino-lime/50 space-y-10 pb-12" id="journal-timeline"></div>
                 </div>
             </div>
 
-            <!-- TAB CẨM NANG -->
-            <div id="tab-handbook" class="tab-content p-4 md:p-8 overflow-y-auto pb-24 md:pb-8 h-full">
-                <div class="flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-6 shrink-0">
+            <div id="tab-handbook" class="tab-content p-4 md:p-8">
+                <div class="flex flex-col h-full max-w-6xl mx-auto">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 shrink-0 gap-4">
                         <div>
                             <h2 class="text-2xl md:text-3xl font-black text-dino-dark">Cẩm Nang</h2>
                             <p class="text-dino-earth font-bold mt-1 text-sm md:text-base">Quy trình, kinh nghiệm</p>
                         </div>
-                        <button onclick="openModal('handbookModal')" class="bg-blue-500 hover:bg-blue-600 text-white p-3 md:px-5 md:py-3 rounded-full font-black shadow-dino transition-transform active:scale-95 flex items-center gap-2 border-b-4 border-blue-700">
+                        
+                        <!-- Search Bar -->
+                        <div class="flex-1 w-full md:max-w-md relative">
+                            <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input type="text" id="search-handbook" oninput="handleSearchHandbook(event)" placeholder="Tìm kiếm cẩm nang..." class="w-full pl-11 pr-10 py-3 rounded-full bg-white border-2 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all font-bold text-slate-700 outline-none shadow-sm">
+                            <button id="clear-search" onclick="clearSearchHandbook()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 hidden"><i class="ph-fill ph-x-circle text-lg"></i></button>
+                        </div>
+                        
+                        <button onclick="openModal('handbookModal')" class="bg-blue-500 hover:bg-blue-600 text-white p-3 md:px-5 md:py-3 rounded-full font-black shadow-dino transition-transform active:scale-95 flex items-center gap-2 border-b-4 border-blue-700 shrink-0">
                             <i class="ph-fill ph-plus-circle text-xl"></i> <span class="hidden md:inline">Thêm</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="handbook-list"></div>
+                    <p id="search-result-count" class="text-sm font-bold text-slate-500 mb-4 hidden">Tìm thấy <span id="search-count-number" class="text-blue-500">0</span> kết quả.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12" id="handbook-list"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Bottom Nav -->
-        <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-2 border-slate-100 shadow-nav z-50 pb-safe-bottom">
+        <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-2 border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-[90] pb-safe-bottom">
             <div class="flex justify-around items-center p-2">
-                <button onclick="switchTab('overview')" id="nav-mobile-overview" class="flex flex-col items-center justify-center p-2 w-16 text-dino-dark rounded-2xl transition-colors">
-                    <i class="ph-fill ph-map-trifold text-2xl mb-1"></i>
-                    <span class="text-[10px] font-bold">Tổng quan</span>
+                <button onclick="switchTab('overview')" id="nav-mobile-overview" class="flex flex-col items-center justify-center p-2 w-16 text-dino-dark bg-dino-lime/20 rounded-2xl transition-colors">
+                    <i class="ph-fill ph-map-trifold text-2xl mb-1"></i><span class="text-[10px] font-bold">Tổng quan</span>
                 </button>
                 <button onclick="switchTab('tasks')" id="nav-mobile-tasks" class="flex flex-col items-center justify-center p-2 w-16 text-slate-400 hover:text-dino-dark rounded-2xl transition-colors">
-                    <i class="ph-fill ph-check-circle text-2xl mb-1"></i>
-                    <span class="text-[10px] font-bold">Sổ sách</span>
+                    <i class="ph-fill ph-check-circle text-2xl mb-1"></i><span class="text-[10px] font-bold">Sổ sách</span>
                 </button>
                 <button onclick="switchTab('journal')" id="nav-mobile-journal" class="flex flex-col items-center justify-center p-2 w-16 text-slate-400 hover:text-dino-dark rounded-2xl transition-colors">
-                    <i class="ph-fill ph-book-open-text text-2xl mb-1"></i>
-                    <span class="text-[10px] font-bold">Nhật ký</span>
+                    <i class="ph-fill ph-book-open-text text-2xl mb-1"></i><span class="text-[10px] font-bold">Nhật ký</span>
                 </button>
                 <button onclick="switchTab('handbook')" id="nav-mobile-handbook" class="flex flex-col items-center justify-center p-2 w-16 text-slate-400 hover:text-dino-dark rounded-2xl transition-colors">
-                    <i class="ph-fill ph-backpack text-2xl mb-1"></i>
-                    <span class="text-[10px] font-bold">Cẩm nang</span>
+                    <i class="ph-fill ph-backpack text-2xl mb-1"></i><span class="text-[10px] font-bold">Cẩm nang</span>
                 </button>
             </div>
         </nav>
     </main>
 
-    <!-- Modal: Thêm Công Việc -->
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[120] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-4xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300 border-4 border-red-400 text-center p-6" id="deleteConfirmModalContent">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500 text-3xl">
+                <i class="ph-bold ph-trash"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">Chắc chắn muốn xóa?</h3>
+            <p class="text-slate-500 font-semibold text-sm mb-6">Dữ liệu sau khi xóa sẽ không thể khôi phục lại được đâu nhé!</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeModal('deleteConfirmModal')" class="px-6 py-3 rounded-full font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors w-1/2">Hủy Bỏ</button>
+                <button onclick="executeDelete()" id="btn-confirm-delete" class="px-6 py-3 rounded-full font-bold text-white bg-red-500 hover:bg-red-600 shadow-dino-solid transition-all transform active:translate-y-1 w-1/2 border-b-4 border-red-700">Xóa Luôn</button>
+            </div>
+        </div>
+    </div>
+
     <div id="taskModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300 border-4 border-dino-lime" id="taskModalContent">
             <div class="flex justify-between items-center p-6 bg-dino-lime/20 border-b-4 border-dino-lime">
                 <h3 class="text-xl font-black text-dino-dark flex items-center gap-2"><i class="ph-fill ph-egg"></i> Nhiệm Vụ Mới</h3>
-                <button onclick="closeModal('taskModal')" class="w-8 h-8 flex items-center justify-center bg-white text-dino-earth rounded-full hover:bg-dino-earth hover:text-white transition-colors font-bold"><i class="ph-bold ph-x"></i></button>
+                <button type="button" onclick="closeModal('taskModal')" class="w-8 h-8 flex items-center justify-center bg-white text-dino-earth rounded-full hover:bg-dino-earth hover:text-white transition-colors font-bold"><i class="ph-bold ph-x"></i></button>
             </div>
             <form id="form-task" class="p-6 space-y-5" onsubmit="handleTaskSubmit(event)">
                 <div>
@@ -294,17 +276,18 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-dino-dark mb-1">Phân loại</label>
-                        <select id="task-type" class="w-full px-5 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-lime focus:bg-white font-semibold cursor-pointer appearance-none">
-                            <option value="Giáo án">Giáo án</option>
-                            <option value="Sổ sách">Sổ sách</option>
-                            <option value="Báo cáo">Báo cáo</option>
-                            <option value="Khác">Khác</option>
-                        </select>
+                        <label class="block text-sm font-bold text-dino-dark mb-1">Phân loại & Màu</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="task-type" list="task-type-list" placeholder="Loại..." class="w-full px-3 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-lime focus:bg-white font-semibold flex-1">
+                            <datalist id="task-type-list">
+                                <option value="Giáo án"></option><option value="Sổ sách"></option><option value="Báo cáo"></option><option value="Sự kiện"></option>
+                            </datalist>
+                            <input type="color" id="task-color" value="#badc58" class="w-12 h-12 rounded-full border-2 border-slate-200 cursor-pointer p-0.5 shrink-0 bg-white">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-dino-dark mb-1">Hạn nộp</label>
-                        <input type="date" id="task-deadline" required class="w-full px-5 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-lime focus:bg-white font-semibold cursor-pointer text-sm">
+                        <input type="date" id="task-deadline" required class="w-full px-4 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-lime focus:bg-white font-semibold cursor-pointer text-sm">
                     </div>
                 </div>
                 <div>
@@ -321,18 +304,17 @@
                 </div>
                 <div class="pt-2 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('taskModal')" class="px-6 py-3 rounded-full font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Hủy</button>
-                    <button type="submit" class="px-6 py-3 rounded-full font-bold text-white bg-dino-dark hover:bg-green-700 shadow-dino-solid transition-all transform active:translate-y-1">Lưu Nhiệm Vụ</button>
+                    <button type="submit" id="btn-submit-task" class="px-6 py-3 rounded-full font-bold text-white bg-dino-dark hover:bg-green-700 shadow-dino-solid transition-all transform active:translate-y-1 border-b-4 border-green-800">Lưu Nhiệm Vụ</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Thêm Nhật Ký -->
     <div id="journalModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-4xl shadow-2xl w-full max-w-xl overflow-hidden transform scale-95 transition-transform duration-300 border-4 border-dino-egg" id="journalModalContent">
             <div class="flex justify-between items-center p-6 egg-pattern border-b-4 border-dino-egg/50">
                 <h3 class="text-xl font-black text-dino-dark bg-white/90 px-4 py-1.5 rounded-full inline-flex items-center gap-2"><i class="ph-fill ph-book-open-text"></i> Dấu Chân Mới</h3>
-                <button onclick="closeModal('journalModal')" class="w-8 h-8 flex items-center justify-center bg-white text-dino-earth rounded-full hover:bg-dino-earth hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
+                <button type="button" onclick="closeModal('journalModal')" class="w-8 h-8 flex items-center justify-center bg-white text-dino-earth rounded-full hover:bg-dino-earth hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
             </div>
             <form id="form-journal" class="p-6 space-y-5" onsubmit="handleJournalSubmit(event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -351,23 +333,22 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-dino-dark mb-1">Loại dấu chân (Tag)</label>
-                        <select id="journal-tag" class="w-full px-5 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-egg focus:bg-white font-semibold cursor-pointer appearance-none">
-                            <option value="Tích cực">Tích cực / Cảm hứng</option>
-                            <option value="Bài học">Bài học kinh nghiệm</option>
-                            <option value="Sự kiện trường">Sự kiện trường lớp</option>
-                            <option value="Áp lực">Căng thẳng / Áp lực</option>
-                        </select>
+                        <label class="block text-sm font-bold text-dino-dark mb-1">Thẻ / Cảm xúc (Tự nhập)</label>
+                        <input type="text" id="journal-tag" list="journal-tag-list" placeholder="VD: 🎉 Kỷ niệm..." class="w-full px-5 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-egg focus:bg-white font-semibold">
+                        <datalist id="journal-tag-list">
+                            <option value="🌟 Tích cực"></option><option value="💡 Bài học"></option>
+                            <option value="🏫 Sự kiện trường"></option><option value="🌧️ Áp lực"></option>
+                        </datalist>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-dino-dark mb-1">Đính kèm ảnh (Lưu vào Drive)</label>
+                        <label class="block text-sm font-bold text-dino-dark mb-1">Đính kèm ảnh</label>
                         <input type="file" id="journal-image-file" accept="image/*" class="w-full px-4 py-2.5 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-egg focus:bg-white font-semibold cursor-pointer text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-dino-egg/20 file:text-dino-earth hover:file:bg-dino-egg/30 transition-all">
                     </div>
                 </div>
                 
                 <div class="pt-2 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('journalModal')" class="px-6 py-3 rounded-full font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Hủy</button>
-                    <button type="submit" class="px-6 py-3 rounded-full font-bold text-white bg-dino-earth hover:bg-orange-600 shadow-dino-solid transition-all transform active:translate-y-1 flex items-center gap-2">
+                    <button type="submit" id="btn-submit-journal" class="px-6 py-3 rounded-full font-bold text-white bg-dino-earth hover:bg-orange-600 shadow-dino-solid transition-all transform active:translate-y-1 flex items-center gap-2 border-b-4 border-orange-700">
                         <i class="ph-fill ph-paw-print"></i> Lưu Lại
                     </button>
                 </div>
@@ -375,12 +356,11 @@
         </div>
     </div>
 
-    <!-- Modal: Thêm/Sửa Tổng Quan -->
     <div id="overviewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300 border-4 border-orange-400" id="overviewModalContent">
             <div class="flex justify-between items-center p-6 bg-orange-100 border-b-4 border-orange-400">
                 <h3 class="text-xl font-black text-slate-800 flex items-center gap-2"><i class="ph-fill ph-map-trifold"></i> Kế Hoạch Mới</h3>
-                <button onclick="closeModal('overviewModal')" class="w-8 h-8 flex items-center justify-center bg-white text-orange-500 rounded-full hover:bg-orange-500 hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
+                <button type="button" onclick="closeModal('overviewModal')" class="w-8 h-8 flex items-center justify-center bg-white text-orange-500 rounded-full hover:bg-orange-500 hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
             </div>
             <form id="form-overview" class="p-6 space-y-5" onsubmit="handleOverviewSubmit(event)">
                 <div class="grid grid-cols-2 gap-4">
@@ -399,18 +379,17 @@
                 </div>
                 <div class="pt-2 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('overviewModal')" class="px-6 py-3 rounded-full font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Hủy</button>
-                    <button type="submit" class="px-6 py-3 rounded-full font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-dino-solid transition-all transform active:translate-y-1">Lưu Kế Hoạch</button>
+                    <button type="submit" id="btn-submit-overview" class="px-6 py-3 rounded-full font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-dino-solid transition-all transform active:translate-y-1 border-b-4 border-orange-700">Lưu Kế Hoạch</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Thêm/Sửa Cẩm Nang -->
     <div id="handbookModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-4xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300 border-4 border-blue-400" id="handbookModalContent">
             <div class="flex justify-between items-center p-6 bg-blue-100 border-b-4 border-blue-400">
                 <h3 class="text-xl font-black text-slate-800 flex items-center gap-2"><i class="ph-fill ph-backpack"></i> Cẩm Nang Mới</h3>
-                <button onclick="closeModal('handbookModal')" class="w-8 h-8 flex items-center justify-center bg-white text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
+                <button type="button" onclick="closeModal('handbookModal')" class="w-8 h-8 flex items-center justify-center bg-white text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-colors font-bold shadow-sm"><i class="ph-bold ph-x"></i></button>
             </div>
             <form id="form-handbook" class="p-6 space-y-5" onsubmit="handleHandbookSubmit(event)">
                 <div>
@@ -418,369 +397,195 @@
                     <input type="text" id="handbook-title" required placeholder="VD: Quy định bán trú..." class="w-full px-5 py-3 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-blue-400 focus:bg-white transition-all font-semibold">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">Nội dung chi tiết (Có thể dùng thẻ HTML như &lt;br&gt;, &lt;b&gt;)</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Nội dung chi tiết (Dùng &lt;br&gt; để xuống dòng)</label>
                     <textarea id="handbook-content" required rows="6" placeholder="Nhập nội dung quy trình, kinh nghiệm..." class="w-full px-5 py-3 rounded-3xl bg-slate-50 border-2 border-slate-200 focus:border-blue-400 focus:bg-white font-semibold resize-none"></textarea>
                 </div>
                 <div class="pt-2 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('handbookModal')" class="px-6 py-3 rounded-full font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Hủy</button>
-                    <button type="submit" class="px-6 py-3 rounded-full font-bold text-white bg-blue-500 hover:bg-blue-600 shadow-dino-solid transition-all transform active:translate-y-1">Lưu Cẩm Nang</button>
+                    <button type="submit" id="btn-submit-handbook" class="px-6 py-3 rounded-full font-bold text-white bg-blue-500 hover:bg-blue-600 shadow-dino-solid transition-all transform active:translate-y-1 border-b-4 border-blue-700">Lưu Cẩm Nang</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-24 md:bottom-6 right-6 bg-white border-4 border-dino-dark text-dino-dark px-6 py-4 rounded-full shadow-dino flex items-center gap-3 transform translate-y-32 opacity-0 transition-all duration-300 z-[110] font-black pointer-events-none">
         <div class="w-8 h-8 rounded-full bg-dino-lime flex items-center justify-center text-white text-lg"><i class="ph-bold ph-check"></i></div>
         <span id="toast-message">Tuyệt vời!</span>
     </div>
-
-    <!-- Vùng ẩn để chứa HTML khi xuất PDF -->
     <div id="print-area" class="hidden"></div>
 
     <script>
         // =========================================================================
-        // URL CỦA GOOGLE APPS SCRIPT WEB APP
-        // Thay thế chuỗi bên dưới bằng link Web App của bạn
+        // URL CỦA GOOGLE APPS SCRIPT WEB APP (Dán link vào đây)
         // =========================================================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwD0kTwFxGCs9nVQARm0dUKZ2nh4Fcv_vfhRotbsRD_eThIrzLayXpMQVRbvXZvIrQ5/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS9q7gzkVfJwJ3YOheBrFplKQWBSaJHrhOzYv6iTJSP9G6g4h8IcwzqLs5sbHfHtCvQQ/exec';
 
-        let tasks = [];
-        let journals = [];
-        let overviews = [];
-        let handbooks = [];
+        let tasks = []; let journals = []; let overviews = []; let handbooks = [];
+        let currentImageBase64 = ""; let currentEditId = null; 
         
-        let currentImageBase64 = ""; 
-        let currentEditId = null; 
+        // Trạng thái hệ thống & Modal Delete
+        let isOnlineStatus = true;
+        let itemToDelete = null; 
+        let currentSearchTerm = '';
 
-        // --- Dữ liệu Mẫu (Tự động đẩy lên trang tính nếu trống) ---
+        // --- Dữ liệu Mẫu (Fallback khi trống) ---
         let defaultTasks = [
-            { id: generateId(), title: 'Chuẩn bị phòng học, dọn vệ sinh', type: 'Khác', deadline: '2026-08-15', status: 'done', note: 'Kiểm tra bàn ghế, dụng cụ vệ sinh, chụp hình chỗ hư hỏng.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Lập group Zalo & Cập nhật CSDL', type: 'Sổ sách', deadline: '2026-08-25', status: 'doing', note: 'Nhắn phụ huynh mua đồ dùng, dán tên. Cập nhật chiều cao, cân nặng.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Giáo án Tuần 1', type: 'Giáo án', deadline: '2026-09-04', status: 'todo', note: 'Lưu ý rèn nền nếp 5 ngày đầu cho học sinh.', createdAt: new Date().toISOString() }
+            { id: generateId(), title: 'Nộp sổ chủ nhiệm', type: 'Sổ sách', color: '#f0932b', deadline: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0], status: 'todo', note: 'Ký nháy trước khi nộp cho tổ trưởng.', createdAt: new Date().toISOString() },
+            { id: generateId(), title: 'Giáo án Tuần 1', type: 'Giáo án', color: '#6ab04c', deadline: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0], status: 'doing', note: 'Lưu ý rèn nền nếp 5 ngày đầu cho học sinh.', createdAt: new Date().toISOString() }
         ];
         
         let defaultJournals = [
-            { id: generateId(), title: 'Lễ Khai Giảng Năm Học Mới', date: '2026-09-05', content: 'Học sinh đến sớm lúc 6g45. Tác phong nghiêm túc, đội viên đeo khăn quàng. Một năm học mới tràn đầy năng lượng!', tag: 'Sự kiện trường', image: '', createdAt: new Date().toISOString() }
+            { id: generateId(), title: 'Lễ Khai Giảng Năm Học Mới', date: new Date().toISOString().split('T')[0], content: 'Học sinh đến sớm lúc 6g45. Tác phong nghiêm túc, đội viên đeo khăn quàng. Một năm học mới tràn đầy năng lượng!', tag: '🏫 Sự kiện trường', image: '', createdAt: new Date().toISOString() }
         ];
 
         let defaultOverviews = [
             { id: generateId(), month: 'Tháng 8', title: 'Chuẩn bị & Nhận lớp', icon: 'ph-broom', color: 'bg-dino-earth', items: ['Thống kê CSVC, bàn ghế, đồ vệ sinh, búa, tua vít.', 'Lập Zalo lớp, nhắn phụ huynh mua đồ dùng, dán tên.', 'Cập nhật CSDL (chiều cao, cân nặng, bán trú).', 'Rèn nền nếp 5 ngày đầu, bầu ban cán sự.'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 9', title: 'Khai giảng & Ổn định', icon: 'ph-confetti', color: 'bg-dino-lime', items: ['Lễ Khai giảng (5/9).', 'Hội thi lồng đèn Trung thu.', 'Cập nhật sổ tiêm ngừa, bảo hiểm.', 'Trang trí lớp học (Ảnh Bác, Góc thư viện).'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 10', title: 'Phong trào & Thi Giữa kì', icon: 'ph-exam', color: 'bg-dino-dark', items: ['Hỗ trợ gác thi khối khác (Chuẩn bị sẵn bài tập cho lớp mình).', 'Phát động phong trào Kế hoạch nhỏ, Trồng cây xanh.', 'Y tế: Khảo sát tiêm vắc xin cho HS.'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 11', title: 'Tri ân Nhà giáo', icon: 'ph-chalkboard-teacher', color: 'bg-orange-500', items: ['Thi Giáo viên dạy giỏi, chuẩn bị giáo án 3 bộ.', 'Hội thi viết chữ đẹp, trang trí bảng lớp.', 'Tổ chức tham quan ngoại khóa (chú ý dặn dò an toàn).', 'Hội nghị Viên chức - Người lao động.'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 1', title: 'Mừng Xuân & Lễ hội Ẩm thực', icon: 'ph-bowl-food', color: 'bg-pink-500', items: ['Trang trí gian hàng ẩm thực, chuẩn bị phiếu ăn.', 'Trao quà Xuân yêu thương.', 'Thi Giáo viên dạy giỏi cấp Thành phố.'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 4', title: 'Tổng kết Sổ sách', icon: 'ph-books', color: 'bg-blue-500', items: ['Thu hồi SGK: Phát sẵn danh sách để trong hộc bàn.', 'Trả vở bài tập dần dần cho HS mang về.'], createdAt: new Date().toISOString() },
-            { id: generateId(), month: 'Tháng 5', title: 'Bế Giảng & Bán Trú', icon: 'ph-medal', color: 'bg-dino-egg', items: ['Tổng kết công tác bán trú.', 'Xử lý các tình huống cuối năm học.', 'Nhắc HS mặt đồng phục áo trắng dự lễ tổng kết.'], createdAt: new Date().toISOString() }
+            { id: generateId(), month: 'Tháng 9', title: 'Khai giảng & Ổn định', icon: 'ph-confetti', color: 'bg-dino-lime', items: ['Lễ Khai giảng (5/9).', 'Hội thi lồng đèn Trung thu.', 'Cập nhật sổ tiêm ngừa, bảo hiểm.', 'Trang trí lớp học (Ảnh Bác, Góc thư viện).'], createdAt: new Date().toISOString() }
         ];
 
         let defaultHandbooks = [
             { id: generateId(), title: 'Quy trình Ngày 1 Nhận Lớp', icon: 'ph-users-three', color: 'bg-dino-dark text-white', content: '1. Xếp chỗ đứng dưới sân, chụp hình làm mẫu để hs nhớ vị trí.<br>2. Hướng dẫn kéo bàn chia nhóm 6, bầu ban cán sự lớp.<br>3. Hướng dẫn vị trí thư viện, y tế, nhà ăn, bồn rửa tay, đi vệ sinh.<br>4. Tiết 3: Kiểm tra đồ dùng có nhãn tên, bao bìa đầy đủ. Chưa đủ để lại trên bàn.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Kinh nghiệm Rèn Chữ', icon: 'ph-pen-nib', color: 'bg-dino-earth text-white', content: 'Lúc HS viết chính tả, GV phải đi rà soát liên tục. Nếu phát hiện viết ẩu, bắt sửa ngay lập tức thì HS sẽ nắn nót lại.<br>Cung cấp vở mẫu để HS so sánh và biết cách trình bày, nhìn sách ghi bài.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Mẹo dạy Tập đọc & Chính tả', icon: 'ph-book-open-text', color: 'bg-amber-500 text-white', content: '- Mẹo cong lưỡi: tr/ch. Đọc dài âm ng, đọc ngắn âm n.<br>- Viết sai chính tả bắt sửa ngay lập tức.<br>- Trước khi viết: khảo đánh vần từ khó trên bảng, dặn dò tên riêng, dấu câu.<br>- Tập đọc: 1 bài học 2 ngày, đọc lưu loát thuộc lòng.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Mẹo dạy Toán', icon: 'ph-math-operations', color: 'bg-purple-500 text-white', content: '- Bảng cộng/trừ/nhân/chia: Khảo 2 bảng số/tuần, khảo bất kì.<br>- Đặt tính dọc nhớ kiểm tra dấu phép tính.<br>- Mẹo: Dặn HS thêm số 0 trước số có 1 chữ số để dễ đặt tính dọc (VD: 08 + 16).<br>- Tìm X: Nhân chuyển thành chia, Chia chuyển thành nhân.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Quy định Ngủ Bán Trú', icon: 'ph-moon-stars', color: 'bg-slate-700 text-white', content: '1. Đánh răng xong là uống nước + đi vệ sinh.<br>2. Nằm im nhắm mắt, không rung chân, múa may.<br>3. Không đụng chạm bạn kế bên để bạn ngủ.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Nội quy Nhà Ăn Bán Trú', icon: 'ph-bowl-food', color: 'bg-orange-500 text-white', content: '- Xếp hàng 10 bạn/hàng đi xuống nhà ăn.<br>- Không mang nước, đồ chơi vào nhà ăn.<br>- Ăn hết phần, không nói chuyện. Bỏ xương vào chỗ trống trong khay.<br>- Tráng miệng ăn tại chỗ, nuốt hết mới được đứng dậy tránh hóc dị vật.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Xử lý Nôn Ói Bán Trú', icon: 'ph-first-aid', color: 'bg-red-500 text-white', content: '<b>CẢNH BÁO:</b> Nếu nôn ói hàng loạt sau 30 phút ăn xong là ngộ độc thực phẩm.<br>-> Xử lý: Lập tức báo Y tế, nhờ PH cho nhập viện theo dõi sức khỏe. Cô đi theo hỗ trợ trong khả năng.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Đi Tham quan Ngoại khóa', icon: 'ph-bus', color: 'bg-blue-500 text-white', content: '1. Nhắn tin Zalo 2 lần (dành cho HS đi/ở nhà).<br>2. Ghi sẵn vòng tay dư 5 cái, làm thẻ đeo balo tránh thất lạc.<br>3. Gửi túi nilon đựng đồ ướt. Cho hs uống Vitamin C trước 1 ngày.<br>4. Nhắc đi vệ sinh trước khi lên xe vì trên xe ko đi vệ sinh được.', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Tổ chức Lễ hội Ẩm thực', icon: 'ph-storefront', color: 'bg-pink-500 text-white', content: '1. Luôn chia phiếu trước 1 ngày.<br>2. Tạo link Google Sheet cập nhật số lượng phiếu trực tiếp.<br>3. Chuẩn bị đồ phụ: khăn giấy, bao tay, nón, tạp dề, túi rác (đếm số lượng chốt sớm lúc rảnh).', createdAt: new Date().toISOString() },
-            { id: generateId(), title: 'Nội quy Giờ học & Ra chơi', icon: 'ph-chalkboard-teacher', color: 'bg-dino-lime text-dino-dark', content: '- Xin phép bằng 2 tay, luôn dạ thưa cô "Dạ thưa cô cho con...".<br>- Ra chơi đi từ từ không chạy nhảy hét lớn đứt cổ họng.<br>- Không mang đồ chơi đi học. Đóng cặp khi ra chơi.<br>- Đi học mang tối đa 20k.', createdAt: new Date().toISOString() }
+            { id: generateId(), title: 'Mẹo dạy Toán', icon: 'ph-math-operations', color: 'bg-slate-700 text-white', content: '- Bảng cộng/trừ/nhân/chia: Khảo 2 bảng số/tuần, khảo bất kì.<br>- Đặt tính dọc nhớ kiểm tra dấu phép tính.<br>- Mẹo: Dặn HS thêm số 0 trước số có 1 chữ số để dễ đặt tính dọc (VD: 08 + 16).<br>- Tìm X: Nhân chuyển thành chia, Chia chuyển thành nhân.', createdAt: new Date().toISOString() },
+            { id: generateId(), title: 'Xử lý Nôn Ói Bán Trú', icon: 'ph-first-aid', color: 'bg-red-500 text-white', content: '<b>CẢNH BÁO:</b> Nếu nôn ói hàng loạt sau 30 phút ăn xong là ngộ độc thực phẩm.<br>-> Xử lý: Lập tức báo Y tế, nhờ PH cho nhập viện theo dõi sức khỏe. Cô đi theo hỗ trợ trong khả năng.', createdAt: new Date().toISOString() }
         ];
 
-        // --- Các hàm Tiện Ích ---
+        // --- Hàm Tiện Ích Chung ---
         function formatDate(dateString) { return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
-
-        function getDaysLeft(deadlineStr) {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const deadline = new Date(deadlineStr);
-            return Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        }
-
+        function getDaysLeft(deadlineStr) { const today = new Date(); today.setHours(0,0,0,0); const deadline = new Date(deadlineStr); return Math.ceil((deadline - today) / (1000 * 60 * 60 * 24)); }
         function generateId() { return Math.random().toString(36).substr(2, 9); }
-
+        
         function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
+            const toast = document.getElementById('toast'); document.getElementById('toast-message').innerText = message;
             toast.classList.remove('translate-y-32', 'opacity-0');
             setTimeout(() => toast.classList.add('translate-y-32', 'opacity-0'), 3000);
         }
+        function triggerStompShake() { document.body.classList.add('stomp-active'); setTimeout(() => document.body.classList.remove('stomp-active'), 400); }
 
-        function triggerStompShake() {
-            document.body.classList.add('stomp-active');
-            setTimeout(() => document.body.classList.remove('stomp-active'), 400);
-        }
-
-        // --- HÀM XUẤT WORD TOÀN BỘ SỔ TAY ---
-        function exportToWord() {
-            showToast("Đang tạo file Word. Vui lòng đợi...");
-            
-            // Xây dựng bố cục HTML cơ bản tương thích với MS Word
-            let htmlContent = `
-                <div style="font-family: 'Times New Roman', serif; color: #000;">
-                    <!-- TRANG BÌA -->
-                    <div style="text-align: center; margin-bottom: 50px;">
-                        <h1 style="font-size: 24pt; color: #2e7d32; margin-bottom: 10px;">SỔ TAY GIÁO VIÊN ĐIỆN TỬ</h1>
-                        <p style="font-size: 14pt; color: #555; margin-bottom: 20px;">Năm học 2026 - 2027</p>
-                        <hr style="border: 1px solid #4caf50; width: 30%; margin: 0 auto; margin-bottom: 30px;">
-                        <p style="font-size: 10pt; font-style: italic; color: #888;">Xuất bản từ hệ thống DinoSpace</p>
-                    </div>
-
-                    <!-- PHẦN 1: TỔNG QUAN -->
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 18pt; color: #d84315; border-bottom: 2px solid #ffccbc; padding-bottom: 5px;">1. TỔNG QUAN LỘ TRÌNH NĂM HỌC</h2>
-                        <div>
-                            ${overviews.map(o => `
-                                <div style="margin-bottom: 20px;">
-                                    <h3 style="font-size: 14pt; background-color: #ffe0b2; padding: 5px 10px; display: inline-block;">${o.month} - ${o.title}</h3>
-                                    <ul style="margin-top: 10px;">
-                                        ${o.items.map(i => `<li style="font-size: 12pt; margin-bottom: 5px;">${i}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- PHẦN 2: CÔNG VIỆC -->
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 18pt; color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 5px;">2. SỔ SÁCH & CÔNG VIỆC</h2>
-                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 12pt;">
-                            <thead>
-                                <tr style="background-color: #f5f5f5;">
-                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Phân loại</th>
-                                    <th style="border: 1px solid #ccc; padding: 8px; width: 40%; text-align: left;">Tên công việc</th>
-                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Hạn nộp</th>
-                                    <th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${tasks.map(t => `
-                                    <tr>
-                                        <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold;">${t.type}</td>
-                                        <td style="border: 1px solid #ccc; padding: 8px;">${t.title}</td>
-                                        <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(t.deadline)}</td>
-                                        <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; color: ${t.status === 'done' ? '#2e7d32' : '#ed6c02'};">
-                                            ${t.status === 'done' ? 'Hoàn thành' : (t.status === 'doing' ? 'Đang xử lý' : 'Cần làm')}
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- PHẦN 3: NHẬT KÝ -->
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 18pt; color: #424242; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px;">3. NHẬT KÝ HÀNH TRÌNH</h2>
-                        <div>
-                            ${journals.map(j => `
-                                <div style="margin-bottom: 30px; padding: 15px; border: 1px solid #eee; background-color: #fafafa;">
-                                    <div style="margin-bottom: 10px;">
-                                        <span style="font-size: 12pt; font-weight: bold; color: #d84315;">${formatDate(j.date)}</span>
-                                        <span style="font-size: 10pt; background-color: #e0e0e0; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">${j.tag}</span>
-                                    </div>
-                                    <h3 style="font-size: 16pt; color: #212121; margin-bottom: 10px;">${j.title}</h3>
-                                    <p style="white-space: pre-line; font-size: 12pt; line-height: 1.5; color: #424242; margin-bottom: 15px;">${j.content}</p>
-                                    ${j.image ? `<img src="${j.image}" style="max-height: 300px; max-width: 100%; border: 1px solid #ccc;" />` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- PHẦN 4: CẨM NANG -->
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 18pt; color: #1565c0; border-bottom: 2px solid #bbdefb; padding-bottom: 5px;">4. CẨM NANG KINH NGHIỆM</h2>
-                        <div>
-                            ${handbooks.map(h => `
-                                <div style="margin-bottom: 20px;">
-                                    <h3 style="font-size: 14pt; color: #0d47a1; margin-bottom: 10px;">• ${h.title}</h3>
-                                    <p style="font-size: 12pt; color: #424242; white-space: pre-line; padding-left: 15px; border-left: 2px solid #bbdefb;">${h.content}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Cấu trúc thẻ HTML đặc tả cho MS Word
-            var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Sổ Tay Giáo Viên</title></head><body>";
-            var postHtml = "</body></html>";
-            var html = preHtml + htmlContent + postHtml;
-
-            // Chuyển đổi thành dạng Blob tương thích với đuôi .doc
-            var blob = new Blob(['\ufeff', html], {
-                type: 'application/msword'
-            });
-            
-            var filename = 'So_Tay_Giao_Vien_DinoSpace.doc';
-            var downloadLink = document.createElement("a");
-
-            document.body.appendChild(downloadLink);
-            if (navigator.msSaveOrOpenBlob) {
-                navigator.msSaveOrOpenBlob(blob, filename);
+        function updateConnectionBadge(status) {
+            const badge = document.getElementById('connection-status');
+            if (status === 'online') {
+                isOnlineStatus = true; badge.innerHTML = '<i class="ph-bold ph-wifi-high"></i> Đã đồng bộ';
+                badge.className = "fixed top-4 right-4 z-[100] px-4 py-2 rounded-full font-bold text-sm shadow-md transition-colors bg-green-100 text-green-700 border-2 border-green-300 flex items-center gap-2";
+                setTimeout(() => badge.classList.add('opacity-0', 'pointer-events-none'), 3000);
             } else {
-                var url = URL.createObjectURL(blob);
-                downloadLink.href = url;
-                downloadLink.download = filename;
-                downloadLink.click();
-                URL.revokeObjectURL(url); // Giải phóng bộ nhớ sau khi tải
+                isOnlineStatus = false; badge.innerHTML = '<i class="ph-bold ph-wifi-slash"></i> Offline (Đã lưu nháp)';
+                badge.className = "fixed top-4 right-4 z-[100] px-4 py-2 rounded-full font-bold text-sm shadow-md transition-colors bg-orange-100 text-orange-700 border-2 border-orange-300 flex items-center gap-2 opacity-100 pointer-events-auto";
             }
-            document.body.removeChild(downloadLink);
-            showToast("Đã tải xong file Word!");
+        }
+        
+        function saveLocalData() {
+            localStorage.setItem('dino_tasks', JSON.stringify(tasks));
+            localStorage.setItem('dino_journals', JSON.stringify(journals));
+            localStorage.setItem('dino_overviews', JSON.stringify(overviews));
+            localStorage.setItem('dino_handbooks', JSON.stringify(handbooks));
         }
 
-        // --- Hàm gọi API Google Apps Script ---
+        function loadLocalData() {
+            const lT = localStorage.getItem('dino_tasks'); if(lT) tasks = JSON.parse(lT);
+            const lJ = localStorage.getItem('dino_journals'); if(lJ) journals = JSON.parse(lJ);
+            const lO = localStorage.getItem('dino_overviews'); if(lO) overviews = JSON.parse(lO);
+            const lH = localStorage.getItem('dino_handbooks'); if(lH) handbooks = JSON.parse(lH);
+        }
+
         async function fetchGAS(action, payload = {}) {
-            if (!SCRIPT_URL || SCRIPT_URL.includes('VUI_LONG_DAN_LINK')) {
-                console.warn('Đang chạy Offline. Vui lòng kết nối Google Apps Script.');
-                return { status: 'offline' };
-            }
+            if (!SCRIPT_URL || SCRIPT_URL.includes('VUI_LONG_DAN_LINK')) { updateConnectionBadge('offline'); return { status: 'offline' }; }
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: action, payload: payload })
-                });
-                return await response.json();
+                const response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
+                updateConnectionBadge('online'); return await response.json();
             } catch (error) {
-                console.error("Lỗi:", error);
-                return { status: 'error' };
+                console.warn("Lỗi kết nối Server, tự động chuyển chế độ Lưu Nháp Offline.");
+                updateConnectionBadge('offline'); return { status: 'offline' };
             }
         }
 
-        // --- Điều Hướng Giao Diện ---
         window.switchTab = function(tabId) {
-            // Đổi class để ẩn hiện tab bằng opacity (Tránh lỗi chặn click Safari)
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            const activeTab = document.getElementById(`tab-${tabId}`);
-            if(activeTab) activeTab.classList.add('active');
+            const activeTab = document.getElementById(`tab-${tabId}`); if(activeTab) activeTab.classList.add('active');
             
-            // Xóa style menu Desktop
+            // Xử lý nút Desktop
             const buttons = ['overview', 'tasks', 'journal', 'handbook'];
             buttons.forEach(btn => {
-                const btnDesktop = document.getElementById(`btn-tab-${btn}`);
-                if (btnDesktop) btnDesktop.className = "w-full flex items-center gap-3 px-5 py-4 text-slate-500 hover:bg-slate-100 rounded-full font-bold text-lg transition-all hover:scale-105";
+                const bD = document.getElementById(`btn-tab-${btn}`);
+                if (bD) bD.className = "w-full flex items-center gap-3 px-5 py-4 text-slate-500 hover:bg-slate-100 rounded-full font-bold text-lg transition-all hover:scale-105";
             });
-
-            // Gắn style active menu Desktop
-            const activeDesktop = document.getElementById(`btn-tab-${tabId}`);
-            if (activeDesktop) activeDesktop.className = "w-full flex items-center gap-3 px-5 py-4 bg-dino-lime/40 text-dino-dark rounded-full font-black text-lg transition-all shadow-sm";
+            const aD = document.getElementById(`btn-tab-${tabId}`);
+            if (aD) aD.className = "w-full flex items-center gap-3 px-5 py-4 bg-dino-lime/40 text-dino-dark rounded-full font-black text-lg transition-all shadow-sm";
             
-            // Xóa style menu Mobile (Bottom Nav)
+            // Xử lý nút Mobile
             buttons.forEach(btn => {
-                const btnMobile = document.getElementById(`nav-mobile-${btn}`);
-                if (btnMobile) {
-                    btnMobile.className = "flex flex-col items-center justify-center p-2 w-16 text-slate-400 hover:text-dino-dark rounded-2xl transition-colors";
-                    btnMobile.querySelector('i').classList.replace('text-dino-dark', 'text-slate-400');
-                }
+                const bM = document.getElementById(`nav-mobile-${btn}`);
+                if (bM) { bM.className = "flex flex-col items-center justify-center p-2 w-16 text-slate-400 hover:text-dino-dark rounded-2xl transition-colors"; bM.querySelector('i').classList.replace('text-dino-dark', 'text-slate-400'); }
             });
+            const aM = document.getElementById(`nav-mobile-${tabId}`);
+            if (aM) { aM.className = "flex flex-col items-center justify-center p-2 w-16 text-dino-dark bg-dino-lime/20 rounded-2xl transition-colors"; aM.querySelector('i').classList.replace('text-slate-400', 'text-dino-dark'); }
 
-            // Gắn style active menu Mobile (Bottom Nav)
-            const activeMobile = document.getElementById(`nav-mobile-${tabId}`);
-            if (activeMobile) {
-                activeMobile.className = "flex flex-col items-center justify-center p-2 w-16 text-dino-dark bg-dino-lime/20 rounded-2xl transition-colors";
-                activeMobile.querySelector('i').classList.replace('text-slate-400', 'text-dino-dark');
-            }
-
-            // Tải lại dữ liệu khi chuyển tab
+            // Render lại dữ liệu
             if (tabId === 'tasks') renderTasks();
             else if (tabId === 'journal') renderJournals();
             else if (tabId === 'overview') renderOverview();
-            else if (tabId === 'handbook') renderHandbook();
-        }
-
-        // --- Xử lý Modal Form ---
-        window.openEditModal = function(type, id) {
-            currentEditId = id;
-            if (type === 'task') {
-                const task = tasks.find(t => t.id === id);
-                if(task) {
-                    document.getElementById('task-title').value = task.title;
-                    document.getElementById('task-type').value = task.type;
-                    document.getElementById('task-deadline').value = task.deadline;
-                    document.getElementById('task-status').value = task.status;
-                    document.getElementById('task-note').value = task.note || '';
-                    document.querySelector('#taskModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Nhiệm Vụ';
-                    document.querySelector('#taskModal button[type="submit"]').innerText = 'Cập Nhật';
-                    openModal('taskModal');
-                }
-            } else if (type === 'journal') {
-                const journal = journals.find(j => j.id === id);
-                if(journal) {
-                    document.getElementById('journal-title').value = journal.title;
-                    document.getElementById('journal-date').value = journal.date;
-                    document.getElementById('journal-content').value = journal.content;
-                    document.getElementById('journal-tag').value = journal.tag;
-                    currentImageBase64 = ""; document.getElementById('journal-image-file').value = "";
-                    document.querySelector('#journalModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Dấu Chân';
-                    document.querySelector('#journalModal button[type="submit"]').innerHTML = '<i class="ph-fill ph-paw-print"></i> Cập Nhật';
-                    openModal('journalModal');
-                }
-            } else if (type === 'overview') {
-                const plan = overviews.find(o => o.id === id);
-                if(plan) {
-                    document.getElementById('overview-month').value = plan.month;
-                    document.getElementById('overview-title').value = plan.title;
-                    document.getElementById('overview-items').value = plan.items.join('\n');
-                    document.querySelector('#overviewModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Kế Hoạch';
-                    document.querySelector('#overviewModal button[type="submit"]').innerText = 'Cập Nhật';
-                    openModal('overviewModal');
-                }
-            } else if (type === 'handbook') {
-                const item = handbooks.find(h => h.id === id);
-                if(item) {
-                    document.getElementById('handbook-title').value = item.title;
-                    document.getElementById('handbook-content').value = item.content.replace(/<br>/g, '\n');
-                    document.querySelector('#handbookModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Cẩm Nang';
-                    document.querySelector('#handbookModal button[type="submit"]').innerText = 'Cập Nhật';
-                    openModal('handbookModal');
-                }
-            }
+            else if (tabId === 'handbook') renderHandbook(currentSearchTerm);
         }
 
         window.openModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            const content = document.getElementById(`${modalId}Content`);
-            if(!currentEditId) {
-                if (modalId === 'taskModal') {
-                    document.getElementById('task-deadline').valueAsDate = new Date();
-                    document.querySelector('#taskModal h3').innerHTML = '<i class="ph-fill ph-egg"></i> Nhiệm Vụ Mới';
-                    document.querySelector('#taskModal button[type="submit"]').innerText = 'Lưu Nhiệm Vụ';
-                }
-                if (modalId === 'journalModal') {
-                    document.getElementById('journal-date').valueAsDate = new Date();
-                    currentImageBase64 = ""; document.getElementById('journal-image-file').value = "";
-                    document.querySelector('#journalModal h3').innerHTML = '<i class="ph-fill ph-book-open-text"></i> Dấu Chân Mới';
-                    document.querySelector('#journalModal button[type="submit"]').innerHTML = '<i class="ph-fill ph-paw-print"></i> Lưu Lại';
-                }
-                if (modalId === 'overviewModal') {
-                    document.querySelector('#overviewModal h3').innerHTML = '<i class="ph-fill ph-map-trifold"></i> Kế Hoạch Mới';
-                    document.querySelector('#overviewModal button[type="submit"]').innerText = 'Lưu Kế Hoạch';
-                }
-                if (modalId === 'handbookModal') {
-                    document.querySelector('#handbookModal h3').innerHTML = '<i class="ph-fill ph-backpack"></i> Cẩm Nang Mới';
-                    document.querySelector('#handbookModal button[type="submit"]').innerText = 'Lưu Cẩm Nang';
-                }
+            const modal = document.getElementById(modalId); const content = document.getElementById(`${modalId}Content`);
+            if(!currentEditId && modalId !== 'deleteConfirmModal') {
+                if (modalId === 'taskModal') { document.getElementById('task-deadline').valueAsDate = new Date(); document.getElementById('task-color').value = "#badc58"; document.querySelector('#taskModal h3').innerHTML = '<i class="ph-fill ph-egg"></i> Nhiệm Vụ Mới'; }
+                if (modalId === 'journalModal') { document.getElementById('journal-date').valueAsDate = new Date(); currentImageBase64 = ""; document.getElementById('journal-image-file').value = ""; document.querySelector('#journalModal h3').innerHTML = '<i class="ph-fill ph-book-open-text"></i> Dấu Chân Mới'; }
+                if (modalId === 'overviewModal') document.querySelector('#overviewModal h3').innerHTML = '<i class="ph-fill ph-map-trifold"></i> Kế Hoạch Mới'; 
+                if (modalId === 'handbookModal') document.querySelector('#handbookModal h3').innerHTML = '<i class="ph-fill ph-backpack"></i> Cẩm Nang Mới';
             }
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
         }
 
         window.closeModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            const content = document.getElementById(`${modalId}Content`);
+            const modal = document.getElementById(modalId); const content = document.getElementById(`${modalId}Content`);
             modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95');
             setTimeout(() => { 
                 modal.classList.add('hidden'); modal.classList.remove('flex'); 
-                document.getElementById(`form-${modalId.replace('Modal','')}`).reset(); currentEditId = null; 
+                if(modalId !== 'deleteConfirmModal') document.getElementById(`form-${modalId.replace('Modal','')}`).reset(); 
+                currentEditId = null; 
             }, 300);
         }
 
-        // --- LOGIC CÔNG VIỆC ---
-        function getTaskTypeStyle(type) {
-            switch(type) {
-                case 'Giáo án': return 'bg-dino-dark text-white';
-                case 'Sổ sách': return 'bg-dino-earth text-white';
-                case 'Báo cáo': return 'bg-dino-lime text-dino-dark';
-                default: return 'bg-slate-200 text-slate-700';
+        window.confirmDelete = function(type, id) {
+            itemToDelete = { type, id };
+            openModal('deleteConfirmModal');
+        }
+
+        window.executeDelete = async function() {
+            if (!itemToDelete) return;
+            const btn = document.getElementById('btn-confirm-delete');
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang Xóa...';
+            const { type, id } = itemToDelete;
+            
+            if (type === 'task') { tasks = tasks.filter(t => t.id !== id); renderTasks(); await fetchGAS('deleteTask', { id: id }); }
+            else if (type === 'journal') { journals = journals.filter(j => j.id !== id); renderJournals(); await fetchGAS('deleteJournal', { id: id }); }
+            else if (type === 'overview') { overviews = overviews.filter(o => o.id !== id); renderOverview(); await fetchGAS('deleteOverview', { id: id }); }
+            else if (type === 'handbook') { handbooks = handbooks.filter(h => h.id !== id); renderHandbook(currentSearchTerm); await fetchGAS('deleteHandbook', { id: id }); }
+            
+            saveLocalData(); showToast('Đã xóa dữ liệu thành công!');
+            btn.innerHTML = 'Xóa Luôn'; closeModal('deleteConfirmModal'); itemToDelete = null; triggerStompShake();
+        }
+
+        function checkWeeklyWorkload() {
+            const warningBox = document.getElementById('workload-warning');
+            const textElement = document.getElementById('workload-text');
+            if(!warningBox) return;
+            
+            let upcomingCount = 0;
+            tasks.forEach(task => {
+                if(task.status !== 'done') {
+                    const dl = getDaysLeft(task.deadline);
+                    if(dl >= 0 && dl <= 7) upcomingCount++; // Có hạn trong vòng 7 ngày tới
+                }
+            });
+
+            if(upcomingCount >= 5) {
+                textElement.innerText = `Cảnh báo: Bạn có ${upcomingCount} công việc phải nộp trong 7 ngày tới. Hãy lên lịch hợp lý nhé!`;
+                warningBox.classList.remove('hidden'); warningBox.classList.add('flex');
+            } else {
+                warningBox.classList.add('hidden'); warningBox.classList.remove('flex');
             }
         }
 
@@ -790,7 +595,7 @@
             
             if (task.status === 'done') deadlineHtml = `<span class="text-dino-dark text-sm font-black flex items-center gap-1"><i class="ph-fill ph-check-circle"></i> Đã xong</span>`;
             else if (daysLeft < 0) deadlineHtml = `<span class="text-red-500 text-sm font-black flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Trễ ${Math.abs(daysLeft)} ngày</span>`;
-            else if (daysLeft === 0) deadlineHtml = `<span class="text-dino-earth text-sm font-black flex items-center gap-1"><i class="ph-fill ph-clock-countdown"></i> Hôm nay!</span>`;
+            else if (daysLeft === 0) deadlineHtml = `<span class="text-orange-500 text-sm font-black flex items-center gap-1"><i class="ph-fill ph-clock-countdown"></i> Hôm nay!</span>`;
             else deadlineHtml = `<span class="text-slate-500 text-sm font-bold flex items-center gap-1"><i class="ph-fill ph-calendar-blank"></i> Còn ${daysLeft} ngày</span>`;
 
             let actionBtn = '';
@@ -798,13 +603,19 @@
             else if (task.status === 'doing') actionBtn = `<button onclick="updateTaskStatus('${task.id}', 'done')" class="w-full mt-4 py-2.5 text-sm font-black text-white bg-dino-dark hover:bg-green-700 rounded-full transition-colors shadow-dino flex justify-center items-center gap-2 border-b-4 border-green-800 active:translate-y-1 active:border-b-0"><i class="ph-fill ph-paw-print"></i> Hoàn thành</button>`;
             else actionBtn = `<button onclick="updateTaskStatus('${task.id}', 'todo')" class="w-full mt-4 py-2.5 text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors">Làm lại</button>`;
 
+            const customColor = task.color || '#badc58'; // Fallback xanh lime
+            const txtColor = (parseInt(customColor.replace('#', ''), 16) > 0xffffff/2) ? '#333' : '#fff'; // Đoán màu text tương phản
+
             return `
                 <div class="bg-white p-5 rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-md transition-shadow group relative">
-                    <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10">
-                        <button onclick="openEditModal('task', '${task.id}')" class="p-2 md:p-1.5 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
-                        <button onclick="deleteTask('${task.id}')" class="p-2 md:p-1.5 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-lg"></i></button>
+                    <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10 bg-white/90 p-1 rounded-2xl backdrop-blur-sm shadow-sm">
+                        <button onclick="duplicateTask('${task.id}')" title="Nhân bản" class="p-1.5 md:p-1.5 bg-slate-100 text-slate-500 hover:text-green-500 rounded-xl hover:bg-green-50 transition-colors"><i class="ph-fill ph-copy text-lg"></i></button>
+                        <button onclick="openEditModal('task', '${task.id}')" title="Sửa" class="p-1.5 md:p-1.5 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                        <button onclick="confirmDelete('task', '${task.id}')" title="Xóa" class="p-1.5 md:p-1.5 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-lg"></i></button>
                     </div>
-                    <div class="flex justify-between items-start mb-3 pr-16"><span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${getTaskTypeStyle(task.type)}">${task.type}</span></div>
+                    <div class="flex justify-between items-start mb-3 pr-24">
+                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider" style="background-color: ${customColor}; color: ${txtColor}; box-shadow: 0 2px 4px ${customColor}40;">${task.type}</span>
+                    </div>
                     <h4 class="font-black text-slate-800 text-lg leading-tight mb-2">${task.title}</h4>
                     ${task.note ? `<p class="text-sm font-semibold text-slate-500 mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">${task.note}</p>` : ''}
                     <div class="pt-3 border-t-2 border-slate-100 border-dashed">${deadlineHtml}</div>
@@ -814,13 +625,12 @@
         }
 
         function renderTasks() {
-            const listTodo = document.getElementById('list-todo');
-            const listDoing = document.getElementById('list-doing');
-            const listDone = document.getElementById('list-done');
+            const listTodo = document.getElementById('list-todo'); const listDoing = document.getElementById('list-doing'); const listDone = document.getElementById('list-done');
             if(!listTodo || !listDoing || !listDone) return;
-
             listTodo.innerHTML = ''; listDoing.innerHTML = ''; listDone.innerHTML = '';
             let counts = { todo: 0, doing: 0, done: 0 };
+            
+            checkWeeklyWorkload(); // Kiểm tra quá tải
 
             [...tasks].sort((a, b) => new Date(a.deadline) - new Date(b.deadline)).forEach(task => {
                 const card = createTaskCard(task);
@@ -828,40 +638,73 @@
                 else if (task.status === 'doing') { listDoing.innerHTML += card; counts.doing++; }
                 else if (task.status === 'done') { listDone.innerHTML += card; counts.done++; }
             });
-
             document.getElementById('count-todo').innerText = counts.todo; document.getElementById('count-doing').innerText = counts.doing; document.getElementById('count-done').innerText = counts.done;
+        }
+
+        window.duplicateTask = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if(task) {
+                document.getElementById('task-title').value = task.title + ' (Bản sao)';
+                document.getElementById('task-type').value = task.type;
+                document.getElementById('task-color').value = task.color || '#badc58';
+                
+                // Mặc định lùi hạn 1 tuần cho bản sao định kỳ
+                let newDate = new Date(task.deadline);
+                newDate.setDate(newDate.getDate() + 7);
+                document.getElementById('task-deadline').value = newDate.toISOString().split('T')[0];
+                
+                document.getElementById('task-status').value = 'todo'; // Bản sao mặc định cần làm
+                document.getElementById('task-note').value = task.note || '';
+                
+                currentEditId = null; // Trở thành task MỚI
+                document.querySelector('#taskModal h3').innerHTML = '<i class="ph-fill ph-copy"></i> Nhân Bản Nhiệm Vụ';
+                document.getElementById('btn-submit-task').innerText = 'Tạo Bản Sao';
+                openModal('taskModal');
+            }
         }
 
         window.handleTaskSubmit = async function(e) {
             e.preventDefault();
-            const btnSubmit = e.target.querySelector('button[type="submit"]');
-            btnSubmit.innerHTML = 'Đang lưu...'; btnSubmit.disabled = true;
+            const btnSubmit = document.getElementById('btn-submit-task');
+            const originalText = btnSubmit.innerText;
+            btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang lưu...'; btnSubmit.disabled = true;
 
-            const taskData = { id: currentEditId ? currentEditId : generateId(), title: document.getElementById('task-title').value, type: document.getElementById('task-type').value, deadline: document.getElementById('task-deadline').value, status: document.getElementById('task-status').value, note: document.getElementById('task-note').value, createdAt: new Date().toISOString() };
-            if (currentEditId) {
-                const index = tasks.findIndex(t => t.id === currentEditId); if (index > -1) tasks[index] = taskData;
-                showToast('Đã cập nhật công việc!'); await fetchGAS('updateTaskFull', taskData);
-            } else {
-                tasks.push(taskData); showToast('Đã thêm công việc vào danh sách!'); await fetchGAS('addTask', taskData);
+            const taskData = { 
+                id: currentEditId ? currentEditId : generateId(), 
+                title: document.getElementById('task-title').value, 
+                type: document.getElementById('task-type').value, 
+                color: document.getElementById('task-color').value,
+                deadline: document.getElementById('task-deadline').value, 
+                status: document.getElementById('task-status').value, 
+                note: document.getElementById('task-note').value, 
+                createdAt: new Date().toISOString() 
+            };
+            
+            try {
+                if (currentEditId) {
+                    const index = tasks.findIndex(t => t.id === currentEditId); if (index > -1) tasks[index] = taskData;
+                    saveLocalData(); renderTasks(); showToast('Đã cập nhật!');
+                    await fetchGAS('updateTaskFull', taskData);
+                } else {
+                    tasks.push(taskData); saveLocalData(); renderTasks(); showToast('Đã thêm việc mới!');
+                    await fetchGAS('addTask', taskData);
+                }
+                closeModal('taskModal'); triggerStompShake();
+            } finally {
+                // Luôn khôi phục nút dù bị lỗi rớt mạng
+                btnSubmit.innerHTML = originalText; btnSubmit.disabled = false;
             }
-            renderTasks(); window.closeModal('taskModal'); triggerStompShake();
-            btnSubmit.innerHTML = currentEditId ? 'Cập Nhật' : 'Lưu Nhiệm Vụ'; btnSubmit.disabled = false;
         }
 
         window.updateTaskStatus = async function(id, newStatus) {
             const taskIndex = tasks.findIndex(t => t.id === id);
             if(taskIndex > -1) {
-                tasks[taskIndex].status = newStatus; renderTasks();
+                tasks[taskIndex].status = newStatus; saveLocalData(); renderTasks();
                 if(newStatus === 'done') { showToast('Đã hoàn thành!'); triggerStompShake(); }
                 await fetchGAS('updateTaskStatus', { id: id, status: newStatus });
             }
         }
 
-        window.deleteTask = async function(id) {
-            tasks = tasks.filter(t => t.id !== id); renderTasks(); showToast('Đã xóa!'); await fetchGAS('deleteTask', { id: id });
-        }
-
-        // --- LOGIC NHẬT KÝ ---
         document.getElementById('journal-image-file').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) { const reader = new FileReader(); reader.onload = function(readerEvent) { currentImageBase64 = readerEvent.target.result; }; reader.readAsDataURL(file); } 
@@ -869,26 +712,23 @@
         });
 
         function getTagStyle(tag) {
-            switch(tag) {
-                case 'Tích cực': return { icon: 'ph-sun-dim', bg: 'bg-dino-egg text-dino-earth' };
-                case 'Bài học': return { icon: 'ph-lightbulb', bg: 'bg-dino-lime text-dino-dark' };
-                case 'Sự kiện trường': return { icon: 'ph-flag-pennant', bg: 'bg-dino-dark text-white' };
-                case 'Áp lực': return { icon: 'ph-cloud-rain', bg: 'bg-slate-300 text-slate-700' };
-                default: return { icon: 'ph-paw-print', bg: 'bg-slate-200 text-slate-700' };
-            }
+            // Mặc định bốc màu xám nếu không có Emoji chuẩn
+            let style = { bg: 'bg-slate-200 text-slate-700' };
+            if(tag.includes('Tích cực') || tag.includes('🌟')) style.bg = 'bg-dino-egg text-dino-earth';
+            else if(tag.includes('Bài học') || tag.includes('💡')) style.bg = 'bg-dino-lime text-dino-dark';
+            else if(tag.includes('Sự kiện') || tag.includes('🏫')) style.bg = 'bg-dino-dark text-white';
+            else if(tag.includes('Áp lực') || tag.includes('🌧️')) style.bg = 'bg-slate-300 text-slate-700';
+            else if(tag.includes('Khen') || tag.includes('🎉')) style.bg = 'bg-pink-200 text-pink-700';
+            else if(tag.includes('Họp') || tag.includes('🗣️')) style.bg = 'bg-blue-200 text-blue-700';
+            return style;
         }
 
         function renderJournals() {
             const container = document.getElementById('journal-timeline'); if(!container) return; container.innerHTML = '';
             
-            // Sắp xếp theo dòng thời gian (Mới nhất ở trên cùng). 
-            // Nếu trùng ngày thì bài nào viết sau sẽ ưu tiên xếp lên trên.
             const sortedJournals = [...journals].sort((a, b) => {
-                const timeA = new Date(a.date).getTime();
-                const timeB = new Date(b.date).getTime();
-                if (timeB === timeA) {
-                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-                }
+                const timeA = new Date(a.date).getTime(); const timeB = new Date(b.date).getTime();
+                if (timeB === timeA) return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
                 return timeB - timeA;
             });
 
@@ -898,59 +738,57 @@
                 <div class="relative group">
                     <div class="absolute -left-[45px] top-4 w-10 h-10 rounded-full bg-white border-4 border-dino-lime flex items-center justify-center z-10 shadow-sm"><i class="ph-fill ph-paw-print text-dino-dark"></i></div>
                     <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:shadow-md transition-all relative">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10">
-                            <button onclick="openEditModal('journal', '${entry.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-xl"></i></button>
-                            <button onclick="deleteJournal('${entry.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-xl"></i></button>
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10 bg-white/90 p-1 rounded-2xl backdrop-blur-sm shadow-sm">
+                            <button onclick="openEditModal('journal', '${entry.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                            <button onclick="confirmDelete('journal', '${entry.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-lg"></i></button>
                         </div>
                         <div class="flex items-center gap-3 mb-4 pr-16">
                             <span class="font-black text-dino-earth bg-dino-egg/20 px-3 py-1 rounded-full text-sm">${formatDate(entry.date)}</span>
-                            <span class="px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 ${style.bg}"><i class="ph-fill ${style.icon}"></i> ${entry.tag}</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 shadow-sm ${style.bg}">${entry.tag}</span>
                         </div>
                         <h3 class="text-2xl font-black text-slate-900 mb-3">${entry.title}</h3>
                         <p class="text-slate-600 font-semibold leading-relaxed whitespace-pre-line mb-4 text-lg">${entry.content}</p>
-                        ${hasImage ? `<div class="mt-4 rounded-3xl overflow-hidden border-4 border-dino-egg/30 max-w-2xl bg-slate-50 flex justify-center"><img src="${entry.image}" alt="Ảnh" class="w-full h-auto object-cover max-h-[500px]" onerror="this.style.display='none'"></div>` : ''}
+                        ${hasImage ? `<div class="mt-4 rounded-3xl overflow-hidden border-4 border-slate-100 max-w-2xl bg-slate-50 flex justify-center"><img src="${entry.image}" alt="Ảnh" class="w-full h-auto object-cover max-h-[500px]" onerror="this.style.display='none'"></div>` : ''}
                     </div>
                 </div>`;
             });
-            if(sortedJournals.length === 0) container.innerHTML = `<div class="text-slate-400 font-bold ml-4">Đang tải dữ liệu hoặc chưa có dấu chân nào...</div>`;
+            if(sortedJournals.length === 0) container.innerHTML = `<div class="text-slate-400 font-bold ml-4">Chưa có dấu chân nào...</div>`;
         }
 
         window.handleJournalSubmit = async function(e) {
             e.preventDefault();
-            const btnSubmit = e.target.querySelector('button[type="submit"]');
-            if (currentImageBase64 !== "") { showToast("Đang tải ảnh lên Google Drive, vui lòng đợi..."); btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang tải...'; } 
-            else { btnSubmit.innerHTML = 'Đang lưu...'; }
+            const btnSubmit = document.getElementById('btn-submit-journal');
+            const originalText = btnSubmit.innerHTML;
+            if (currentImageBase64 !== "") { showToast("Đang tải ảnh lên Cloud, vui lòng đợi..."); btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang tải...'; } 
+            else { btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang lưu...'; }
             btnSubmit.disabled = true;
 
             const journalData = { id: currentEditId ? currentEditId : generateId(), title: document.getElementById('journal-title').value, date: document.getElementById('journal-date').value, content: document.getElementById('journal-content').value, tag: document.getElementById('journal-tag').value, imageBase64: currentImageBase64, createdAt: new Date().toISOString() };
-            
-            // Giữ lại link ảnh cũ nếu đang sửa mà không tải mới
             if (currentEditId) {
                 const oldJournal = journals.find(j => j.id === currentEditId);
                 if (oldJournal && oldJournal.image) journalData.image = oldJournal.image;
             }
 
-            const response = await fetchGAS(currentEditId ? 'updateJournalFull' : 'addJournal', journalData);
-            
-            if (currentEditId) {
-                const index = journals.findIndex(j => j.id === currentEditId);
-                if (index > -1) {
-                    if (response && response.status === 'success') { journals[index] = response.data; } 
-                    else { if (journalData.imageBase64) journalData.image = journalData.imageBase64; journals[index] = { ...journals[index], ...journalData }; }
+            try {
+                // Lưu Local ngay lập tức để Optimistic UI
+                let tempJData = { ...journalData }; 
+                if (tempJData.imageBase64 && !tempJData.image) tempJData.image = tempJData.imageBase64; // Gắn tạm ảnh base64 để xem ngay
+                if (currentEditId) { const idx = journals.findIndex(j => j.id === currentEditId); if(idx>-1) journals[idx] = tempJData; }
+                else { journals.push(tempJData); }
+                saveLocalData(); renderJournals(); closeModal('journalModal'); triggerStompShake(); showToast('Đã lưu nháp, đang đồng bộ...');
+
+                const response = await fetchGAS(currentEditId ? 'updateJournalFull' : 'addJournal', journalData);
+                
+                // Đồng bộ ảnh thật từ Server về (Thay thế base64)
+                if (response && response.status === 'success') {
+                    const finalIdx = journals.findIndex(j => j.id === journalData.id);
+                    if(finalIdx > -1) { journals[finalIdx] = response.data; saveLocalData(); renderJournals(); showToast('Đã đồng bộ lên Cloud!'); }
                 }
-                showToast('Đã cập nhật dấu chân!');
-            } else {
-                if(response && response.status === 'success') { journals.push(response.data); } 
-                else { journalData.image = journalData.imageBase64; journals.push(journalData); }
-                showToast('Đã lưu dấu chân!');
+            } finally {
+                btnSubmit.innerHTML = originalText; btnSubmit.disabled = false;
             }
-            renderJournals(); window.closeModal('journalModal'); triggerStompShake();
-            btnSubmit.innerHTML = currentEditId ? '<i class="ph-fill ph-paw-print"></i> Cập Nhật' : '<i class="ph-fill ph-paw-print"></i> Lưu Lại'; btnSubmit.disabled = false;
         }
 
-        window.deleteJournal = async function(id) { journals = journals.filter(j => j.id !== id); renderJournals(); showToast('Đã xóa dấu chân!'); await fetchGAS('deleteJournal', { id: id }); }
-
-        // --- LOGIC TỔNG QUAN ---
         function renderOverview() {
             const container = document.getElementById('overview-timeline'); if(!container) return; container.innerHTML = '';
             overviews.forEach(plan => {
@@ -959,9 +797,9 @@
                 <div class="relative group">
                     <div class="absolute -left-[45px] top-4 w-10 h-10 rounded-full bg-white border-4 border-dino-egg flex items-center justify-center z-10 shadow-sm transition-transform group-hover:scale-110"><i class="ph-fill ${plan.icon} ${plan.color.replace('bg-', 'text-')} text-xl"></i></div>
                     <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:border-dino-earth/50 hover:shadow-md transition-all relative ml-2">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10">
-                            <button onclick="openEditModal('overview', '${plan.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-xl"></i></button>
-                            <button onclick="deleteOverview('${plan.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-xl"></i></button>
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10 bg-white/90 p-1 rounded-2xl backdrop-blur-sm shadow-sm">
+                            <button onclick="openEditModal('overview', '${plan.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                            <button onclick="confirmDelete('overview', '${plan.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-lg"></i></button>
                         </div>
                         <div class="flex items-center gap-3 mb-4 pr-16">
                             <span class="font-black text-white ${plan.color} px-4 py-1.5 rounded-full text-sm shadow-sm whitespace-nowrap">${plan.month}</span>
@@ -975,91 +813,191 @@
 
         window.handleOverviewSubmit = async function(e) {
             e.preventDefault();
-            const btnSubmit = e.target.querySelector('button[type="submit"]'); btnSubmit.innerHTML = 'Đang lưu...'; btnSubmit.disabled = true;
+            const btnSubmit = document.getElementById('btn-submit-overview'); const orgText = btnSubmit.innerText;
+            btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang lưu...'; btnSubmit.disabled = true;
 
             const icons = ['ph-broom', 'ph-confetti', 'ph-exam', 'ph-chalkboard-teacher', 'ph-stethoscope', 'ph-flower-lotus', 'ph-users-three', 'ph-books', 'ph-medal'];
             const colors = ['bg-dino-earth', 'bg-dino-lime', 'bg-dino-dark', 'bg-orange-500', 'bg-slate-700', 'bg-pink-500', 'bg-blue-500', 'bg-dino-egg'];
-            
-            const rawItems = document.getElementById('overview-items').value; const itemsArray = rawItems.split('\n').filter(i => i.trim() !== '');
+            const itemsArray = document.getElementById('overview-items').value.split('\n').filter(i => i.trim() !== '');
             const planData = { id: currentEditId ? currentEditId : generateId(), month: document.getElementById('overview-month').value, title: document.getElementById('overview-title').value, items: itemsArray, icon: currentEditId ? overviews.find(o => o.id === currentEditId).icon : icons[Math.floor(Math.random() * icons.length)], color: currentEditId ? overviews.find(o => o.id === currentEditId).color : colors[Math.floor(Math.random() * colors.length)], createdAt: new Date().toISOString() };
             
-            if (currentEditId) { const index = overviews.findIndex(o => o.id === currentEditId); if (index > -1) overviews[index] = planData; showToast('Đã cập nhật Kế hoạch!'); await fetchGAS('updateOverview', planData); } 
-            else { overviews.push(planData); showToast('Đã thêm Kế hoạch!'); await fetchGAS('addOverview', planData); }
-            renderOverview(); window.closeModal('overviewModal'); triggerStompShake(); btnSubmit.innerHTML = currentEditId ? 'Cập Nhật' : 'Lưu Kế Hoạch'; btnSubmit.disabled = false;
+            try {
+                if (currentEditId) { const index = overviews.findIndex(o => o.id === currentEditId); if (index > -1) overviews[index] = planData; saveLocalData(); renderOverview(); showToast('Đã cập nhật Kế hoạch!'); await fetchGAS('updateOverview', planData); } 
+                else { overviews.push(planData); saveLocalData(); renderOverview(); showToast('Đã thêm Kế hoạch!'); await fetchGAS('addOverview', planData); }
+                closeModal('overviewModal'); triggerStompShake();
+            } finally {
+                btnSubmit.innerHTML = orgText; btnSubmit.disabled = false;
+            }
         }
 
-        window.deleteOverview = async function(id) { overviews = overviews.filter(o => o.id !== id); renderOverview(); showToast('Đã xóa!'); await fetchGAS('deleteOverview', { id: id }); }
+        function renderHandbook(searchTerm = '') {
+            const container = document.getElementById('handbook-list'); 
+            const countBox = document.getElementById('search-result-count');
+            const countNum = document.getElementById('search-count-number');
+            if(!container) return; container.innerHTML = '';
+            
+            let filteredHandbooks = handbooks;
+            if (searchTerm.trim() !== '') {
+                const term = searchTerm.toLowerCase();
+                filteredHandbooks = handbooks.filter(h => h.title.toLowerCase().includes(term) || h.content.toLowerCase().includes(term));
+                countBox.classList.remove('hidden'); countNum.innerText = filteredHandbooks.length;
+            } else { countBox.classList.add('hidden'); }
 
-        // --- LOGIC CẨM NANG ---
-        function renderHandbook() {
-            const container = document.getElementById('handbook-list'); if(!container) return; container.innerHTML = '';
-            handbooks.forEach(item => {
+            filteredHandbooks.forEach(item => {
                 container.innerHTML += `
-                    <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:shadow-dino hover:border-dino-lime transition-all group relative">
-                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10">
-                            <button onclick="openEditModal('handbook', '${item.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-xl"></i></button>
-                            <button onclick="deleteHandbook('${item.id}')" class="p-2 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-xl"></i></button>
+                    <div class="bg-white rounded-4xl p-6 shadow-sm border-2 border-slate-100 hover:shadow-dino hover:border-dino-lime transition-all group relative flex flex-col h-full">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 mobile-always-show transition-opacity z-10 bg-white/90 p-1 rounded-2xl backdrop-blur-sm shadow-sm">
+                            <button onclick="openEditModal('handbook', '${item.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-blue-500 rounded-xl hover:bg-blue-50 transition-colors"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                            <button onclick="confirmDelete('handbook', '${item.id}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors"><i class="ph-fill ph-trash text-lg"></i></button>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center text-2xl mb-4 shadow-sm group-hover:scale-110 transition-transform"><i class="ph-fill ${item.icon}"></i></div>
+                        <div class="w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center text-2xl mb-4 shadow-sm group-hover:scale-110 transition-transform shrink-0"><i class="ph-fill ${item.icon}"></i></div>
                         <h3 class="text-xl font-black text-slate-800 mb-3 pr-16">${item.title}</h3>
-                        <p class="text-slate-600 font-semibold leading-relaxed text-sm">${item.content}</p>
+                        <p class="text-slate-600 font-semibold leading-relaxed text-sm flex-1">${item.content}</p>
                     </div>`;
             });
-            if(handbooks.length === 0) container.innerHTML = `<div class="text-slate-400 font-bold col-span-full">Chưa có cẩm nang nào...</div>`;
+            if(filteredHandbooks.length === 0) container.innerHTML = `<div class="text-slate-400 font-bold col-span-full py-8 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">Rất tiếc! Không tìm thấy cẩm nang nào phù hợp.</div>`;
+        }
+
+        window.handleSearchHandbook = function(e) {
+            currentSearchTerm = e.target.value;
+            const clearBtn = document.getElementById('clear-search');
+            if (currentSearchTerm.trim() !== '') clearBtn.classList.remove('hidden'); else clearBtn.classList.add('hidden');
+            renderHandbook(currentSearchTerm);
+        }
+
+        window.clearSearchHandbook = function() {
+            document.getElementById('search-handbook').value = '';
+            document.getElementById('clear-search').classList.add('hidden');
+            currentSearchTerm = ''; renderHandbook();
         }
 
         window.handleHandbookSubmit = async function(e) {
             e.preventDefault();
-            const btnSubmit = e.target.querySelector('button[type="submit"]'); btnSubmit.innerHTML = 'Đang lưu...'; btnSubmit.disabled = true;
+            const btnSubmit = document.getElementById('btn-submit-handbook'); const orgText = btnSubmit.innerText;
+            btnSubmit.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Đang lưu...'; btnSubmit.disabled = true;
 
             const icons = ['ph-chalk-board-teacher', 'ph-bowl-food', 'ph-book-open-text', 'ph-math-operations', 'ph-bus', 'ph-star', 'ph-lightbulb'];
             const colors = ['bg-dino-earth text-white', 'bg-dino-dark text-white', 'bg-dino-lime text-dino-dark', 'bg-slate-700 text-white', 'bg-orange-500 text-white'];
             const contentFormatted = document.getElementById('handbook-content').value.replace(/\n/g, '<br>');
 
             const itemData = { id: currentEditId ? currentEditId : generateId(), title: document.getElementById('handbook-title').value, content: contentFormatted, icon: currentEditId ? handbooks.find(h => h.id === currentEditId).icon : icons[Math.floor(Math.random() * icons.length)], color: currentEditId ? handbooks.find(h => h.id === currentEditId).color : colors[Math.floor(Math.random() * colors.length)], createdAt: new Date().toISOString() };
-            if (currentEditId) { const index = handbooks.findIndex(h => h.id === currentEditId); if (index > -1) handbooks[index] = itemData; showToast('Đã cập nhật Cẩm Nang!'); await fetchGAS('updateHandbook', itemData); } 
-            else { handbooks.push(itemData); showToast('Đã thêm Cẩm Nang!'); await fetchGAS('addHandbook', itemData); }
-            renderHandbook(); window.closeModal('handbookModal'); triggerStompShake(); btnSubmit.innerHTML = currentEditId ? 'Cập Nhật' : 'Lưu Cẩm Nang'; btnSubmit.disabled = false;
+            try {
+                if (currentEditId) { const index = handbooks.findIndex(h => h.id === currentEditId); if (index > -1) handbooks[index] = itemData; saveLocalData(); renderHandbook(currentSearchTerm); showToast('Đã cập nhật Cẩm Nang!'); await fetchGAS('updateHandbook', itemData); } 
+                else { handbooks.push(itemData); saveLocalData(); renderHandbook(currentSearchTerm); showToast('Đã thêm Cẩm Nang!'); await fetchGAS('addHandbook', itemData); }
+                closeModal('handbookModal'); triggerStompShake();
+            } finally {
+                btnSubmit.innerHTML = orgText; btnSubmit.disabled = false;
+            }
         }
 
-        window.deleteHandbook = async function(id) { handbooks = handbooks.filter(h => h.id !== id); renderHandbook(); showToast('Đã xóa cẩm nang!'); await fetchGAS('deleteHandbook', { id: id }); }
+        window.openEditModal = function(type, id) {
+            currentEditId = id;
+            if (type === 'task') {
+                const task = tasks.find(t => t.id === id);
+                if(task) {
+                    document.getElementById('task-title').value = task.title; document.getElementById('task-type').value = task.type;
+                    document.getElementById('task-color').value = task.color || '#badc58';
+                    document.getElementById('task-deadline').value = task.deadline; document.getElementById('task-status').value = task.status;
+                    document.getElementById('task-note').value = task.note || '';
+                    document.querySelector('#taskModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Nhiệm Vụ'; document.getElementById('btn-submit-task').innerText = 'Cập Nhật';
+                    openModal('taskModal');
+                }
+            } else if (type === 'journal') {
+                const journal = journals.find(j => j.id === id);
+                if(journal) {
+                    document.getElementById('journal-title').value = journal.title; document.getElementById('journal-date').value = journal.date;
+                    document.getElementById('journal-content').value = journal.content; document.getElementById('journal-tag').value = journal.tag;
+                    currentImageBase64 = ""; document.getElementById('journal-image-file').value = "";
+                    document.querySelector('#journalModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Dấu Chân'; document.getElementById('btn-submit-journal').innerHTML = '<i class="ph-fill ph-paw-print"></i> Cập Nhật';
+                    openModal('journalModal');
+                }
+            } else if (type === 'overview') {
+                const plan = overviews.find(o => o.id === id);
+                if(plan) {
+                    document.getElementById('overview-month').value = plan.month; document.getElementById('overview-title').value = plan.title; document.getElementById('overview-items').value = plan.items.join('\n');
+                    document.querySelector('#overviewModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Kế Hoạch'; document.getElementById('btn-submit-overview').innerText = 'Cập Nhật';
+                    openModal('overviewModal');
+                }
+            } else if (type === 'handbook') {
+                const item = handbooks.find(h => h.id === id);
+                if(item) {
+                    document.getElementById('handbook-title').value = item.title; document.getElementById('handbook-content').value = item.content.replace(/<br>/g, '\n');
+                    document.querySelector('#handbookModal h3').innerHTML = '<i class="ph-fill ph-pencil"></i> Sửa Cẩm Nang'; document.getElementById('btn-submit-handbook').innerText = 'Cập Nhật';
+                    openModal('handbookModal');
+                }
+            }
+        }
 
-        // --- KHỞI CHẠY ỨNG DỤNG ---
+        window.exportToPDF = function() { // Giữ nguyên tên hàm nhưng bản chất là xuất Word để tương thích html hiện tại
+            showToast("Đang tạo file Word. Vui lòng đợi...");
+            let htmlContent = `
+                <div style="font-family: 'Times New Roman', serif; color: #000;">
+                    <div style="text-align: center; margin-bottom: 50px;">
+                        <h1 style="font-size: 24pt; color: #2e7d32; margin-bottom: 10px;">SỔ TAY GIÁO VIÊN ĐIỆN TỬ</h1>
+                        <p style="font-size: 14pt; color: #555; margin-bottom: 20px;">Năm học 2026 - 2027</p>
+                        <hr style="border: 1px solid #4caf50; width: 30%; margin: 0 auto; margin-bottom: 30px;">
+                    </div>
+                    <div style="margin-bottom: 40px;"><h2 style="font-size: 18pt; color: #d84315; border-bottom: 2px solid #ffccbc; padding-bottom: 5px;">1. LỘ TRÌNH</h2>
+                        ${overviews.map(o => `<div style="margin-bottom: 20px;"><h3 style="font-size: 14pt; background-color: #ffe0b2; padding: 5px 10px; display: inline-block;">${o.month} - ${o.title}</h3><ul style="margin-top: 10px;">${o.items.map(i => `<li style="font-size: 12pt; margin-bottom: 5px;">${i}</li>`).join('')}</ul></div>`).join('')}
+                    </div>
+                    <div style="margin-bottom: 40px;"><h2 style="font-size: 18pt; color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 5px;">2. CÔNG VIỆC</h2>
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 12pt;"><thead><tr style="background-color: #f5f5f5;"><th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Phân loại</th><th style="border: 1px solid #ccc; padding: 8px; width: 40%; text-align: left;">Tên công việc</th><th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Hạn nộp</th><th style="border: 1px solid #ccc; padding: 8px; width: 20%; text-align: left;">Trạng thái</th></tr></thead><tbody>
+                            ${tasks.map(t => `<tr><td style="border: 1px solid #ccc; padding: 8px; font-weight: bold;">${t.type}</td><td style="border: 1px solid #ccc; padding: 8px;">${t.title}</td><td style="border: 1px solid #ccc; padding: 8px;">${formatDate(t.deadline)}</td><td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; color: ${t.status === 'done' ? '#2e7d32' : '#ed6c02'};">${t.status === 'done' ? 'Hoàn thành' : (t.status === 'doing' ? 'Đang xử lý' : 'Cần làm')}</td></tr>`).join('')}
+                        </tbody></table>
+                    </div>
+                    <div style="margin-bottom: 40px;"><h2 style="font-size: 18pt; color: #424242; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px;">3. NHẬT KÝ</h2>
+                        ${journals.map(j => `<div style="margin-bottom: 30px; padding: 15px; border: 1px solid #eee; background-color: #fafafa;"><div style="margin-bottom: 10px;"><span style="font-size: 12pt; font-weight: bold; color: #d84315;">${formatDate(j.date)}</span><span style="font-size: 10pt; background-color: #e0e0e0; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">${j.tag}</span></div><h3 style="font-size: 16pt; color: #212121; margin-bottom: 10px;">${j.title}</h3><p style="white-space: pre-line; font-size: 12pt; line-height: 1.5; color: #424242; margin-bottom: 15px;">${j.content}</p>${j.image ? `<img src="${j.image}" style="max-height: 300px; max-width: 100%; border: 1px solid #ccc;" />` : ''}</div>`).join('')}
+                    </div>
+                    <div style="margin-bottom: 40px;"><h2 style="font-size: 18pt; color: #1565c0; border-bottom: 2px solid #bbdefb; padding-bottom: 5px;">4. CẨM NANG</h2>
+                        ${handbooks.map(h => `<div style="margin-bottom: 20px;"><h3 style="font-size: 14pt; color: #0d47a1; margin-bottom: 10px;">• ${h.title}</h3><p style="font-size: 12pt; color: #424242; white-space: pre-line; padding-left: 15px; border-left: 2px solid #bbdefb;">${h.content}</p></div>`).join('')}
+                    </div>
+                </div>`;
+            var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Sổ Tay Giáo Viên</title></head><body>";
+            var postHtml = "</body></html>";
+            var blob = new Blob(['\ufeff', preHtml + htmlContent + postHtml], { type: 'application/msword' });
+            var url = URL.createObjectURL(blob);
+            var downloadLink = document.createElement("a"); downloadLink.href = url; downloadLink.download = 'So_Tay_Giao_Vien_DinoSpace.doc';
+            document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink); URL.revokeObjectURL(url);
+            showToast("Đã tải xong file Word!");
+        }
+
         async function initApp() {
             window.switchTab('overview');
+            
+            // 1. Tải Dữ liệu Nháp từ LocalStorage trước (Khởi động siêu tốc & Chống mất data)
+            loadLocalData();
+            if(tasks.length === 0 && journals.length === 0) {
+                // Nếu chưa có local, nạp default
+                tasks = [...defaultTasks]; journals = [...defaultJournals]; overviews = [...defaultOverviews]; handbooks = [...defaultHandbooks];
+                saveLocalData();
+            }
+            renderTasks(); renderJournals(); renderOverview(); renderHandbook();
+
+            // 2. Fetch dữ liệu từ Google Apps Script (Chạy ngầm)
             const isOnline = SCRIPT_URL.includes('script.google.com');
-
-            // 1. Load Tasks
-            const resTasks = await fetchGAS('getTasks');
-            if (resTasks && resTasks.status === 'success' && resTasks.data.length > 0) { tasks = resTasks.data; } 
-            else { tasks = [...defaultTasks]; if (isOnline) tasks.forEach(t => fetchGAS('addTask', t)); }
-            if(document.getElementById('tab-tasks').classList.contains('active')) renderTasks();
-
-            // 2. Load Journals
-            const resJournals = await fetchGAS('getJournals');
-            if (resJournals && resJournals.status === 'success' && resJournals.data.length > 0) { journals = resJournals.data; } 
-            else { journals = [...defaultJournals]; if (isOnline) journals.forEach(j => fetchGAS('addJournal', j)); }
-            if(document.getElementById('tab-journal').classList.contains('active')) renderJournals();
-
-            // 3. Load Overview
-            const resOverviews = await fetchGAS('getOverview');
-            if (resOverviews && resOverviews.status === 'success' && resOverviews.data.length > 0) { overviews = resOverviews.data; } 
-            else { overviews = [...defaultOverviews]; if (isOnline) overviews.forEach(o => fetchGAS('addOverview', o)); }
-            if(document.getElementById('tab-overview').classList.contains('active')) renderOverview();
-
-            // 4. Load Handbooks (Có kiểm tra bổ sung)
-            const resHandbooks = await fetchGAS('getHandbooks');
-            if (resHandbooks && resHandbooks.status === 'success') {
-                if (resHandbooks.data.length > 0) {
-                    const existingTitles = resHandbooks.data.map(h => h.title);
-                    const missingHandbooks = defaultHandbooks.filter(h => !existingTitles.includes(h.title));
-                    if (isOnline && missingHandbooks.length > 0) {
-                        missingHandbooks.forEach(h => fetchGAS('addHandbook', h));
-                        handbooks = [...resHandbooks.data, ...missingHandbooks]; 
-                    } else { handbooks = resHandbooks.data; }
-                } else { handbooks = [...defaultHandbooks]; if (isOnline) handbooks.forEach(h => fetchGAS('addHandbook', h)); }
-            } else { handbooks = [...defaultHandbooks]; }
-            if(document.getElementById('tab-handbook').classList.contains('active')) renderHandbook();
+            if(isOnline) {
+                try {
+                    const [resT, resJ, resO, resH] = await Promise.all([ fetchGAS('getTasks'), fetchGAS('getJournals'), fetchGAS('getOverview'), fetchGAS('getHandbooks') ]);
+                    if(resT.status === 'success') {
+                        if(resT.data.length > 0) tasks = resT.data; else tasks.forEach(t => fetchGAS('addTask', t));
+                        if(resJ.data.length > 0) journals = resJ.data; else journals.forEach(j => fetchGAS('addJournal', j));
+                        if(resO.data.length > 0) overviews = resO.data; else overviews.forEach(o => fetchGAS('addOverview', o));
+                        
+                        if(resH.data.length > 0) {
+                            const existingTitles = resH.data.map(h => h.title); const missingHandbooks = defaultHandbooks.filter(h => !existingTitles.includes(h.title));
+                            if(missingHandbooks.length > 0) { missingHandbooks.forEach(h => fetchGAS('addHandbook', h)); handbooks = [...resH.data, ...missingHandbooks]; } 
+                            else { handbooks = resH.data; }
+                        } else handbooks.forEach(h => fetchGAS('addHandbook', h));
+                        
+                        saveLocalData(); // Ghi đè lại local bằng cloud data
+                        // Cập nhật giao diện nếu đang ở tab hiện tại
+                        if(document.getElementById('tab-tasks').classList.contains('active')) renderTasks();
+                        if(document.getElementById('tab-journal').classList.contains('active')) renderJournals();
+                        if(document.getElementById('tab-overview').classList.contains('active')) renderOverview();
+                        if(document.getElementById('tab-handbook').classList.contains('active')) renderHandbook(currentSearchTerm);
+                    }
+                } catch(e) { console.warn("Sử dụng bản lưu LocalStorage vì Server lỗi."); }
+            }
         }
 
         window.onload = initApp;
