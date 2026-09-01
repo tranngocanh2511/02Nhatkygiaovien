@@ -56,6 +56,25 @@
 </head>
 
 <body class="bg-dino-bg text-slate-800 h-screen flex overflow-hidden relative">
+<!-- MÀN HÌNH KHÓA BẢO MẬT -->
+    <div id="lock-screen" class="fixed inset-0 z-[999] bg-dino-bg egg-pattern flex items-center justify-center p-4 transition-opacity duration-500">
+        <div id="lock-screen-box" class="bg-white rounded-4xl shadow-2xl w-full max-w-sm overflow-hidden border-4 border-dino-earth text-center p-8 relative">
+            <div class="w-20 h-20 bg-dino-egg rounded-full flex items-center justify-center mx-auto mb-4 text-white text-4xl border-4 border-white shadow-dino">
+                <i class="ph-fill ph-lock-key"></i>
+            </div>
+            <h2 class="text-2xl font-black text-dino-dark mb-1">Vừng ơi mở ra</h2>
+            <p class="text-slate-500 font-bold text-sm mb-6">Kho báu</p>
+            
+            <div class="space-y-4">
+                <input type="password" id="app-password" onkeydown="if(event.key === 'Enter') checkPassword()" placeholder="Nhập mật khẩu..." class="w-full px-5 py-4 rounded-full bg-slate-50 border-2 border-slate-200 focus:border-dino-earth focus:bg-white transition-all font-black text-center text-lg tracking-widest outline-none">
+                <p id="password-error" class="text-red-500 font-bold text-sm hidden">Sai mật khẩu! Vui lòng thử lại.</p>
+                <button onclick="checkPassword()" class="w-full px-6 py-4 rounded-full font-black text-white bg-dino-earth hover:bg-orange-500 shadow-dino-solid transition-all transform active:translate-y-1 border-b-4 border-orange-600 flex items-center justify-center gap-2 text-lg">
+                    Úm ba la <i class="ph-bold ph-key"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="connection-status" class="fixed top-4 right-4 z-[100] px-4 py-2 rounded-full font-bold text-sm shadow-md transition-colors bg-white text-slate-500 border-2 border-slate-200 flex items-center gap-2">
         <i class="ph-bold ph-spinner animate-spin"></i> Đang kết nối...
@@ -1004,7 +1023,23 @@
             document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink); URL.revokeObjectURL(url);
             showToast("Đã tải xong file Word!");
         }
-
+function checkPassword() {
+            const pwd = document.getElementById('app-password').value;
+            const errorText = document.getElementById('password-error');
+            const lockBox = document.getElementById('lock-screen-box');
+            
+            if(pwd === '2104') { 
+                // Mật khẩu ĐÚNG: Ẩn màn hình khóa và tải dữ liệu
+                document.getElementById('lock-screen').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => document.getElementById('lock-screen').style.display = 'none', 500);
+                initApp(); // Kích hoạt chạy dữ liệu trang web
+            } else {
+                // Mật khẩu SAI: Hiện cảnh báo và rung lắc bảng
+                errorText.classList.remove('hidden');
+                lockBox.classList.add('stomp-active');
+                setTimeout(() => lockBox.classList.remove('stomp-active'), 400);
+            }
+        }
         async function initApp() {
             window.switchTab('overview');
             
@@ -1044,7 +1079,8 @@
             }
         }
 
-        window.onload = initApp;
+// Chỉ load các biểu tượng, không load dữ liệu (initApp) cho đến khi nhập đúng mật khẩu
+window.onload = function() {};
     </script>
 </body>
 </html>
